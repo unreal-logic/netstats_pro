@@ -1,9 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:netstats_pro/domain/entities/competition.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
-import 'package:netstats_pro/domain/entities/team.dart';
-import 'package:netstats_pro/domain/entities/venue.dart';
 import 'package:netstats_pro/domain/repositories/competition_repository.dart';
 import 'package:netstats_pro/domain/repositories/game_repository.dart';
 import 'package:netstats_pro/domain/repositories/player_repository.dart';

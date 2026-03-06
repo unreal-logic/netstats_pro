@@ -9,6 +9,7 @@ class GamesBloc extends Bloc<GamesEvent, GamesState> {
   GamesBloc({required this.gameRepository}) : super(const GamesState()) {
     on<LoadGames>(_onLoadGames);
     on<GamesUpdated>(_onGamesUpdated);
+    on<GamesLoadError>(_onGamesLoadError);
   }
 
   final GameRepository gameRepository;
@@ -19,7 +20,12 @@ class GamesBloc extends Bloc<GamesEvent, GamesState> {
     await _gamesSubscription?.cancel();
     _gamesSubscription = gameRepository.watchAllGames().listen(
       (games) => add(GamesUpdated(games)),
+      onError: (Object e, StackTrace s) => add(const GamesLoadError()),
     );
+  }
+
+  void _onGamesLoadError(GamesLoadError event, Emitter<GamesState> emit) {
+    emit(state.copyWith(status: GamesStatus.failure));
   }
 
   void _onGamesUpdated(GamesUpdated event, Emitter<GamesState> emit) {

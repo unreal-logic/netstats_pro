@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:netstats_pro/core/theme/app_theme.dart';
+import 'package:netstats_pro/core/design_system/design_system.dart';
 import 'package:netstats_pro/core/theme/transitions.dart';
 import 'package:netstats_pro/injection_container.dart' as di;
 import 'package:netstats_pro/injection_container.dart' show sl;
@@ -177,8 +177,8 @@ class NetstatsProApp extends StatelessWidget {
         return MaterialApp.router(
           routerConfig: _router,
           title: 'Netstats Pro System',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
           themeMode: currentMode,
         );
       },

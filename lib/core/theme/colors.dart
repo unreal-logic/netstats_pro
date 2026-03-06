@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:netstats_pro/core/design_system/tokens/app_colors.dart';
 
-/// NetStats Pro core color palette extracted from HTML tokens.
+/// AppColors compatibility shim.
+/// New code should use AppColors from the design system directly:
+///   import 'package:netstats_pro/core/design_system/design_system.dart';
+export 'package:netstats_pro/core/design_system/tokens/app_colors.dart'
+    show AppColors;
+
+/// NetStatsColors — kept for backward compatibility.
+/// @Deprecated Prefer AppColors in new code.
 class NetStatsColors {
-  // Primary Brands
-  // Replaced #25AFF4 with a more vibrant electric blue
-  static const Color primary = Color(0xFF00B4FA); // M3 Primary Seed
-
-  // Accents & Semantics
-  static const Color accentTeal = Color(0xFF14B8A6); // M3 Tertiary
-  static const Color accentCoral = Color(
-    0xFFFB7185,
-  ); // M3 Error / Semantic Error
-
-  // Backgrounds Structure (Dark gradient outer reference)
-  static const Color backgroundDark = Color(0xFF0F172A);
-  static const Color backgroundLight = Color(0xFFF8FAFC);
-
-  // New specific status colors
+  static const Color primary = AppColors.primary;
+  static const Color accentTeal = AppColors.info;
+  static const Color accentCoral = AppColors.error;
+  static const Color backgroundDark = AppColors.darkBackground;
+  static const Color backgroundLight = AppColors.lightBackground;
   static const Color staminaPurple = Color(0xFF8B5CF6);
 }

@@ -35,11 +35,18 @@ Future<void> init() async {
 
     sl
       ..registerSingleton<AppDatabase>(database)
+      // ─── Repositories ─────────────────────────────────────────────────────
       ..registerLazySingleton<PlayerRepository>(
         () => DriftPlayerRepository(sl()),
       )
+      ..registerLazySingleton<TeamRepository>(
+        () => DriftTeamRepository(sl()),
+      )
       ..registerLazySingleton<GameRepository>(
         () => DriftGameRepository(sl()),
+      )
+      ..registerLazySingleton<MatchEventRepository>(
+        () => DriftMatchEventRepository(sl()),
       )
       ..registerLazySingleton<CompetitionRepository>(
         () => DriftCompetitionRepository(sl()),
@@ -47,10 +54,11 @@ Future<void> init() async {
       ..registerLazySingleton<VenueRepository>(
         () => DriftVenueRepository(sl()),
       )
+      // ─── Services ─────────────────────────────────────────────────────────
       ..registerLazySingleton<DemoDataService>(
         () => DemoDataService(teamRepository: sl(), playerRepository: sl()),
       )
-      // Use Cases
+      // ─── Use Cases ────────────────────────────────────────────────────────
       ..registerLazySingleton<GetLiveMatchUseCase>(
         () => GetLiveMatchUseCase(
           gameRepository: sl(),
@@ -65,18 +73,13 @@ Future<void> init() async {
           playerRepository: sl(),
         ),
       )
+      // ─── BLoCs (factory = new instance per route) ─────────────────────────
       ..registerFactory(
         () => LiveMatchBloc(
           gameRepository: sl(),
           matchEventRepository: sl(),
           getLiveMatchUseCase: sl(),
         ),
-      )
-      ..registerLazySingleton<TeamRepository>(
-        () => DriftTeamRepository(sl()),
-      )
-      ..registerLazySingleton<MatchEventRepository>(
-        () => DriftMatchEventRepository(sl()),
       )
       ..registerFactory(
         () => GamesBloc(gameRepository: sl()),

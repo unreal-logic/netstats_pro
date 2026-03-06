@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design System — Style Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Primary */
+    --primary:           #3b82f6;
+    --primary-container: #1d4ed8;
+    --primary-subtle:    rgba(59,130,246,.10);
+    --primary-faint:     rgba(59,130,246,.06);
+    --on-primary:        #ffffff;
+    /* Semantic */
+    --success:  #22c55e;
+    --warning:  #f59e0b;
+    --error:    #ef4444;
+    --info:     #06b6d4;
+    /* Dark palette */
+    --bg-dark:       #0f172a;
+    --surf-dark:     #1e293b;
+    --surf-dark-var: #334155;
+    --outline-dark:  #1e293b;
+    --text-dark:     #f1f5f9;
+    --text-dark-2:   #94a3b8;
+    --text-dark-3:   #475569;
+    /* Light palette */
+    --bg-light:       #f8fafc;
+    --surf-light:     #ffffff;
+    --surf-light-var: #f1f5f9;
+    --outline-light:  #cbd5e1;
+    --text-light:     #0f172a;
+    --text-light-2:   #475569;
+    --text-light-3:   #94a3b8;
+    /* Radius */
+    --r-xs:   4px;
+    --r-sm:   8px;
+    --r-md:   12px;
+    --r-lg:   16px;
+    --r-xl:   20px;
+    --r-pill: 999px;
+    /* Spacing */
+    --sp-4:  4px;  --sp-6:  6px;  --sp-8:  8px;  --sp-12: 12px;
+    --sp-16: 16px; --sp-20: 20px; --sp-24: 24px; --sp-32: 32px;
+    --sp-40: 40px; --sp-48: 48px; --sp-64: 64px;
+  }
+
+  /* ── Themes ── */
+  [data-theme="dark"] {
+    --bg:         var(--bg-dark);
+    --surf:       var(--surf-dark);
+    --surf-var:   var(--surf-dark-var);
+    --outline:    var(--outline-dark);
+    --text-1:     var(--text-dark);
+    --text-2:     var(--text-dark-2);
+    --text-3:     var(--text-dark-3);
+  }
+  [data-theme="light"] {
+    --bg:         var(--bg-light);
+    --surf:       var(--surf-light);
+    --surf-var:   var(--surf-light-var);
+    --outline:    var(--outline-light);
+    --text-1:     var(--text-light);
+    --text-2:     var(--text-light-2);
+    --text-3:     var(--text-light-3);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    min-height: 100vh;
+    transition: background .2s, color .2s;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 56px; }
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--text-2);
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--outline);
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 56px;
+  }
+  .page-header h1 {
+    font-size: 32px; font-weight: 800; letter-spacing: -0.5px;
+  }
+  .page-header p { font-size: 14px; color: var(--text-2); margin-top: 6px; }
+
+  /* ── Theme toggle ── */
+  .theme-toggle {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    background: var(--surf); border: 1px solid var(--outline);
+    border-radius: var(--r-pill); padding: 6px 14px;
+    font-size: 12px; font-weight: 700; letter-spacing: .5px;
+    color: var(--text-1); text-transform: uppercase;
+    transition: all .15s;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ── Color swatch grid ── */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px,1fr)); gap: 10px; }
+  .swatch {
+    border-radius: var(--r-md); overflow: hidden;
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .swatch-color { height: 60px; }
+  .swatch-label {
+    padding: 6px 8px; background: var(--surf);
+    border-top: 1px solid var(--outline);
+  }
+  .swatch-label .name { font-size: 9px; font-weight: 700; letter-spacing: .5px; color: var(--text-2); text-transform: uppercase; }
+  .swatch-label .hex  { font-size: 10px; font-weight: 600; color: var(--text-1); font-variant-numeric: tabular-nums; }
+
+  /* ── Semantic badge row ── */
+  .semantic-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ── Typography ── */
+  .type-row {
+    display: flex; align-items: baseline; gap: 16px;
+    padding: 14px 0; border-bottom: 1px solid var(--outline);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta { font-size: 9px; font-weight: 700; letter-spacing: .5px; color: var(--text-3);
+    text-transform: uppercase; min-width: 130px; flex-shrink: 0; }
+  .type-sample { flex: 1; color: var(--text-1); }
+  .type-spec { font-size: 9px; color: var(--text-3); min-width: 120px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ── Spacing tokens ── */
+  .spacing-grid { display: flex; flex-direction: column; gap: 10px; }
+  .spacing-row { display: flex; align-items: center; gap: 16px; }
+  .spacing-bar { background: var(--primary); height: 8px; border-radius: var(--r-pill); opacity: .8; }
+  .spacing-label { font-size: 11px; font-weight: 700; color: var(--text-2); min-width: 40px; }
+  .spacing-value { font-size: 10px; color: var(--text-3); }
+
+  /* ── Radius tokens ── */
+  .radius-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+  .radius-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .radius-box { width: 64px; height: 64px; background: var(--surf-var); border: 2px solid var(--primary); }
+  .radius-name { font-size: 10px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .5px; }
+  .radius-val  { font-size: 10px; color: var(--text-3); }
+
+  /* ── Buttons ── */
+  .btn-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; border-radius: var(--r-lg); font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; cursor: pointer; border: none;
+    padding: 0 24px; height: 52px; transition: all .15s; white-space: nowrap;
+    text-decoration: none;
+  }
+  .btn-sm { height: 36px; padding: 0 16px; font-size: 11px; border-radius: var(--r-md); }
+  .btn-lg { height: 58px; padding: 0 32px; font-size: 14px; border-radius: var(--r-xl); }
+
+  .btn-primary   { background: var(--primary);  color: #fff; box-shadow: 0 4px 16px rgba(59,130,246,.2); }
+  .btn-primary:hover { filter: brightness(1.12); }
+  .btn-secondary { background: var(--surf-var); color: var(--text-1); }
+  .btn-secondary:hover { background: var(--outline); }
+  .btn-outlined  { background: transparent; color: var(--primary); border: 1.5px solid var(--outline); }
+  .btn-outlined:hover  { border-color: var(--primary); }
+  .btn-ghost     { background: transparent; color: var(--primary); }
+  .btn-ghost:hover     { background: var(--primary-subtle); }
+  .btn-danger    { background: var(--error);   color: #fff; }
+  .btn-danger:hover    { filter: brightness(1.1); }
+  .btn-disabled  { background: var(--surf-var); color: var(--text-3); cursor: not-allowed; opacity: .6; }
+
+  .btn-icon {
+    width: 40px; height: 40px; border-radius: 50%; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; transition: all .15s;
+  }
+  .btn-icon-ghost    { background: var(--surf-var); color: var(--text-2); }
+  .btn-icon-primary  { background: var(--primary);  color: #fff; }
+  .btn-icon-outlined { background: transparent; color: var(--primary); border: 1.5px solid var(--outline); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surf); border-radius: var(--r-lg);
+    border: 1px solid var(--outline); padding: 20px;
+    transition: border-color .15s;
+  }
+  .card-selected {
+    background: var(--primary-subtle); border: 2px solid var(--primary);
+  }
+  .card-flat  { background: var(--surf-var); border: none; }
+  .card-title { font-size: 14px; font-weight: 700; color: var(--text-1); }
+  .card-body  { font-size: 13px; color: var(--text-2); margin-top: 4px; line-height: 1.5; }
+
+  /* ── Radio tiles ── */
+  .radio-tile {
+    display: flex; align-items: center; gap: 16px; padding: 16px;
+    border-radius: var(--r-lg); border: 2px solid var(--outline);
+    background: var(--surf); cursor: pointer; transition: all .2s;
+    margin-bottom: 10px;
+  }
+  .radio-tile.active {
+    border-color: var(--primary); background: var(--primary-subtle);
+  }
+  .radio-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--outline); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s;
+  }
+  .radio-tile.active .radio-dot { border-color: var(--primary); }
+  .radio-inner {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--primary); display: none;
+  }
+  .radio-tile.active .radio-inner { display: block; }
+  .radio-content { flex: 1; }
+  .radio-header  { display: flex; justify-content: space-between; align-items: center; }
+  .radio-title   { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-1); }
+  .radio-sub     { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+  .radio-pill    {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; padding: 3px 8px;
+    border-radius: var(--r-pill); background: var(--surf-var); color: var(--text-2);
+  }
+  .radio-tile.active .radio-pill { background: var(--primary-subtle); color: var(--primary); }
+
+  /* ── Progress dots ── */
+  .progress-dots { display: flex; align-items: center; gap: 6px; }
+  .dot {
+    height: 6px; border-radius: var(--r-pill);
+    background: var(--surf-var); transition: all .25s;
+  }
+  .dot.active { background: var(--primary); width: 32px; }
+  .dot.inactive { width: 6px; }
+
+  /* ── Chips ── */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 14px; border-radius: var(--r-pill);
+    font-size: 11px; font-weight: 700; letter-spacing: .4px; cursor: pointer;
+    transition: all .15s; white-space: nowrap;
+  }
+  .chip-tonal    { background: var(--surf-var);       color: var(--text-1); }
+  .chip-selected { background: var(--primary-subtle); color: var(--primary); }
+  .chip-outlined { background: transparent; color: var(--text-2); border: 1.5px solid var(--outline); }
+  .chip-filled   { background: var(--primary);        color: #fff; }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: var(--r-pill);
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-primary { background: var(--primary-subtle); color: var(--primary); }
+  .badge-success { background: rgba(34,197,94,.12);   color: var(--success); }
+  .badge-warning { background: rgba(245,158,11,.12);  color: var(--warning); }
+  .badge-error   { background: rgba(239,68,68,.12);   color: var(--error); }
+  .badge-info    { background: rgba(6,182,212,.12);   color: var(--info); }
+  .badge-neutral { background: var(--surf-var);       color: var(--text-2); }
+
+  /* ── Inputs ── */
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-2);
+  }
+  .input-field {
+    background: var(--surf); border: 1px solid var(--outline);
+    border-radius: var(--r-md); padding: 14px 16px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    color: var(--text-1); outline: none; width: 100%;
+    transition: border-color .15s;
+  }
+  .input-field::placeholder { color: var(--text-3); font-weight: 400; }
+  .input-field:focus { border-color: var(--primary); border-width: 2px; }
+  .input-field.error { border-color: var(--error); }
+  .input-helper { font-size: 11px; color: var(--text-3); }
+  .input-error-text { font-size: 11px; color: var(--error); }
+
+  .dropdown-tile {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surf); border: 1px solid var(--outline);
+    border-radius: var(--r-md); padding: 14px 16px; cursor: pointer;
+    transition: border-color .15s;
+  }
+  .dropdown-tile:hover { border-color: var(--text-3); }
+  .dropdown-placeholder { font-size: 14px; color: var(--text-3); font-weight: 400; }
+  .dropdown-value       { font-size: 14px; color: var(--text-1); font-weight: 600; }
+
+  .date-tile {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surf); border: 1px solid var(--outline);
+    border-radius: var(--r-md); padding: 14px 16px; cursor: pointer;
+  }
+  .date-tile .date-text { font-size: 13px; font-weight: 600; color: var(--text-1); }
+
+  /* ── Bottom nav ── */
+  .bottom-nav {
+    background: var(--surf); border-top: 1px solid var(--outline);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 24px; border-radius: 0 0 var(--r-xl) var(--r-xl);
+    border: 1px solid var(--outline);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer;
+  }
+  .nav-icon { font-size: 22px; color: var(--text-3); transition: color .15s; }
+  .nav-item.active .nav-icon { color: var(--primary); }
+  .nav-label {
+    font-size: 9px; font-weight: 700; letter-spacing: .8px;
+    text-transform: uppercase; color: var(--text-3);
+  }
+  .nav-item.active .nav-label { color: var(--primary); }
+  .nav-pill {
+    background: var(--primary-subtle); padding: 6px 20px;
+    border-radius: var(--r-lg); margin-bottom: -2px;
+  }
+  .nav-pill .nav-icon { color: var(--primary); }
+
+  /* ── Elevation demo ── */
+  .elevation-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+  .elevation-item {
+    background: var(--surf); border-radius: var(--r-lg);
+    width: 100px; height: 80px; display: flex;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 4px;
+  }
+  .elevation-label { font-size: 9px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .5px; }
+
+  /* ── App screen preview ── */
+  .phone-frame {
+    width: 360px; border-radius: 32px; overflow: hidden;
+    border: 8px solid var(--surf-var);
+    box-shadow: 0 24px 64px rgba(0,0,0,.4);
+    margin: 0 auto;
+  }
+  .phone-screen { background: var(--bg-dark); padding: 0; }
+  .screen-topbar { height: 40px; background: var(--bg-dark); }
+  .screen-content { padding: 16px; }
+  .screen-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .screen-title {
+    font-size: 16px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-dark);
+  }
+  .screen-back {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--surf-dark); display: flex; align-items: center;
+    justify-content: center;
+  }
+  .screen-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--surf-dark-var); display: flex; align-items: center;
+    justify-content: center;
+  }
+  .screen-section-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text-dark-2); margin-bottom: 12px;
+  }
+  .screen-radio-tile {
+    display: flex; align-items: center; gap: 12px; padding: 14px;
+    border-radius: 16px; border: 2px solid var(--outline-dark);
+    background: rgba(30,41,59,.5); margin-bottom: 10px;
+  }
+  .screen-radio-tile.active {
+    border-color: var(--primary); background: var(--primary-faint);
+  }
+  .screen-r-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--outline-dark); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .screen-radio-tile.active .screen-r-dot { border-color: var(--primary); }
+  .screen-r-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); display: none; }
+  .screen-radio-tile.active .screen-r-inner { display: block; }
+  .screen-r-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #fff; }
+  .screen-r-sub { font-size: 10px; color: var(--text-dark-2); margin-top: 2px; }
+  .screen-r-pill {
+    font-size: 8px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
+    background: var(--surf-dark-var); color: var(--text-dark-2);
+  }
+  .screen-radio-tile.active .screen-r-pill { background: var(--primary-subtle); color: var(--primary); }
+  .screen-dropdown {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surf-dark); border: 1px solid var(--surf-dark);
+    border-radius: var(--r-md); padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
+  }
+  .screen-dropdown span { font-size: 12px; color: var(--text-dark-2); font-weight: 400; }
+  .screen-cta {
+    background: var(--primary); border-radius: var(--r-lg); padding: 14px;
+    text-align: center; font-size: 12px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; color: #fff;
+    margin-top: 12px; cursor: pointer;
+  }
+  .screen-nav {
+    background: rgba(15,23,42,.9); border-top: 1px solid var(--surf-dark);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 20px 14px;
+  }
+  .screen-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+  }
+  .screen-nav-item .m { font-size: 20px; color: var(--text-dark-2); }
+  .screen-nav-item.act .m  { color: var(--primary); }
+  .screen-nav-item span { font-size: 8px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dark-2); }
+  .screen-nav-item.act span { color: var(--primary); }
+  .screen-nav-pill { background: var(--primary-subtle); padding: 4px 16px; border-radius: var(--r-lg); }
+  .screen-progress { display: flex; align-items: center; gap: 5px; justify-content: center; margin-bottom: 20px; }
+  .screen-dot { height: 5px; border-radius: 999px; background: var(--surf-dark); }
+  .screen-dot.a { width: 26px; background: var(--primary); }
+  .screen-dot.i { width: 5px; }
+
+  /* ── Misc utils ── */
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;
+  }
+  .tag {
+    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase; color: var(--primary); background: var(--primary-subtle);
+    border-radius: var(--r-xs); padding: 2px 6px; margin-right: 6px;
+  }
+  .divider { border: none; border-top: 1px solid var(--outline); margin: 32px 0; }
+  .code {
+    font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px;
+    background: var(--surf-var); color: var(--primary); padding: 2px 6px;
+    border-radius: var(--r-xs);
+  }
+  .sub-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 12px; margin-top: 24px;
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1>Design System</h1>
+      <p>Flutter · Material 3 · Light &amp; Dark · Inter</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+      <span class="material-symbols-rounded" style="font-size:16px">light_mode</span>
+      Light Mode
+    </button>
+  </div>
+
+  <!-- ══ 1. COLOUR ════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">01 — Colour Tokens</div>
+
+    <div class="sub-label">Primary</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:#3b82f6"></div><div class="swatch-label"><div class="name">Primary</div><div class="hex">#3B82F6</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#1d4ed8"></div><div class="swatch-label"><div class="name">P-Container</div><div class="hex">#1D4ED8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:rgba(59,130,246,.10); border:1px dashed rgba(59,130,246,.3)"></div><div class="swatch-label"><div class="name">P-Subtle</div><div class="hex">10%</div></div></div>
+    </div>
+
+    <div class="sub-label">Semantic</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:#22c55e"></div><div class="swatch-label"><div class="name">Success</div><div class="hex">#22C55E</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#f59e0b"></div><div class="swatch-label"><div class="name">Warning</div><div class="hex">#F59E0B</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#ef4444"></div><div class="swatch-label"><div class="name">Error</div><div class="hex">#EF4444</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#06b6d4"></div><div class="swatch-label"><div class="name">Info</div><div class="hex">#06B6D4</div></div></div>
+    </div>
+
+    <div class="sub-label">Dark Surface Palette (Slate)</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:#020617"></div><div class="swatch-label"><div class="name">Slate 950</div><div class="hex">#020617</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#0f172a"></div><div class="swatch-label"><div class="name">BG Dark</div><div class="hex">#0F172A</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#1e293b"></div><div class="swatch-label"><div class="name">Surface</div><div class="hex">#1E293B</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#334155"></div><div class="swatch-label"><div class="name">Surf-Var</div><div class="hex">#334155</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#475569"></div><div class="swatch-label"><div class="name">Slate 600</div><div class="hex">#475569</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#64748b"></div><div class="swatch-label"><div class="name">Slate 500</div><div class="hex">#64748B</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#94a3b8"></div><div class="swatch-label"><div class="name">Text Muted</div><div class="hex">#94A3B8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#f1f5f9"></div><div class="swatch-label"><div class="name">On Dark</div><div class="hex">#F1F5F9</div></div></div>
+    </div>
+
+    <div class="sub-label">Light Surface Palette</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:#f8fafc; border:1px solid #e2e8f0"></div><div class="swatch-label"><div class="name">BG Light</div><div class="hex">#F8FAFC</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#ffffff; border:1px solid #e2e8f0"></div><div class="swatch-label"><div class="name">Surface</div><div class="hex">#FFFFFF</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#f1f5f9"></div><div class="swatch-label"><div class="name">Surf-Var</div><div class="hex">#F1F5F9</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#e2e8f0"></div><div class="swatch-label"><div class="name">Container</div><div class="hex">#E2E8F0</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#cbd5e1"></div><div class="swatch-label"><div class="name">Outline</div><div class="hex">#CBD5E1</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#475569"></div><div class="swatch-label"><div class="name">On-Surf-V</div><div class="hex">#475569</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#0f172a"></div><div class="swatch-label"><div class="name">On Light</div><div class="hex">#0F172A</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 2. TYPOGRAPHY ════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">02 — Typography — Inter</div>
+
+    <div class="type-row">
+      <div class="type-meta">Display Large</div>
+      <div class="type-sample" style="font-size:36px;font-weight:400;letter-spacing:-0.25px;line-height:1.12">Match Day</div>
+      <div class="type-spec">57px · 400 · −0.25ls</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Headline Large</div>
+      <div class="type-sample" style="font-size:28px;font-weight:700;line-height:1.25">Match Setup</div>
+      <div class="type-spec">32px · 700</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Headline Medium</div>
+      <div class="type-sample" style="font-size:22px;font-weight:700;line-height:1.29">Game Format</div>
+      <div class="type-spec">28px · 700</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Title Large</div>
+      <div class="type-sample" style="font-size:18px;font-weight:700;line-height:1.27">7 Aside — Standard</div>
+      <div class="type-spec">22px · 700</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Title Medium</div>
+      <div class="type-sample" style="font-size:14px;font-weight:600;letter-spacing:0.15px;line-height:1.5">Competition · Venue</div>
+      <div class="type-spec">16px · 600 · 0.15ls</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Body Large</div>
+      <div class="type-sample" style="font-size:14px;font-weight:400;letter-spacing:0.5px;line-height:1.5">Standard Match / Super Netball format with 7 players per side.</div>
+      <div class="type-spec">16px · 400 · 0.5ls</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Body Medium</div>
+      <div class="type-sample" style="font-size:12px;font-weight:400;letter-spacing:0.25px;line-height:1.43">Select a competition to continue setting up your match.</div>
+      <div class="type-spec">14px · 400 · 0.25ls</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Label Large</div>
+      <div class="type-sample" style="font-size:12px;font-weight:700;letter-spacing:0.1px">CONTINUE · SAVE</div>
+      <div class="type-spec">14px · 700 · btn</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Section Label</div>
+      <div class="type-sample" style="font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-2)">GAME FORMAT · COMPETITION · VENUE</div>
+      <div class="type-spec">10px · 700 · 2.5ls</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Caption</div>
+      <div class="type-sample" style="font-size:11px;font-weight:400;letter-spacing:0.4px;color:var(--text-3)">Helper and supporting text at 12px</div>
+      <div class="type-spec">12px · 400 · 0.4ls</div>
+    </div>
+  </div>
+
+  <!-- ══ 3. SPACING ════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">03 — Spacing — 8px Grid</div>
+    <div class="spacing-grid">
+      <div class="spacing-row"><div class="spacing-label">xs · 4</div><div class="spacing-bar" style="width:4px"></div><div class="spacing-value">4px</div></div>
+      <div class="spacing-row"><div class="spacing-label">sm · 8</div><div class="spacing-bar" style="width:8px"></div><div class="spacing-value">8px</div></div>
+      <div class="spacing-row"><div class="spacing-label">md · 16</div><div class="spacing-bar" style="width:16px"></div><div class="spacing-value">16px — card padding, input padding</div></div>
+      <div class="spacing-row"><div class="spacing-label">lg · 24</div><div class="spacing-bar" style="width:24px"></div><div class="spacing-value">24px — page horizontal padding</div></div>
+      <div class="spacing-row"><div class="spacing-label">xl · 32</div><div class="spacing-bar" style="width:32px"></div><div class="spacing-value">32px</div></div>
+      <div class="spacing-row"><div class="spacing-label">xxl · 48</div><div class="spacing-bar" style="width:48px"></div><div class="spacing-value">48px</div></div>
+      <div class="spacing-row"><div class="spacing-label">xxxl · 64</div><div class="spacing-bar" style="width:64px"></div><div class="spacing-value">64px</div></div>
+    </div>
+  </div>
+
+  <!-- ══ 4. BORDER RADIUS ══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">04 — Border Radius</div>
+    <div class="radius-grid">
+      <div class="radius-item"><div class="radius-box" style="border-radius:0"></div><div class="radius-name">None</div><div class="radius-val">0px</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:4px"></div><div class="radius-name">XS</div><div class="radius-val">4px</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:8px"></div><div class="radius-name">SM</div><div class="radius-val">8px</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:12px"></div><div class="radius-name">MD</div><div class="radius-val">12px · default</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:16px"></div><div class="radius-name">LG</div><div class="radius-val">16px · card</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:20px"></div><div class="radius-name">XL</div><div class="radius-val">20px</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:24px"></div><div class="radius-name">XXL</div><div class="radius-val">24px</div></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:999px;width:80px;height:32px;margin-top:16px"></div><div class="radius-name">Pill</div><div class="radius-val">999px · chips</div></div>
+    </div>
+  </div>
+
+  <!-- ══ 5. BUTTONS ════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">05 — Buttons</div>
+
+    <div class="sub-label">Variants</div>
+    <div class="btn-grid">
+      <button class="btn btn-primary">Continue</button>
+      <button class="btn btn-secondary">Save Draft</button>
+      <button class="btn btn-outlined">Cancel</button>
+      <button class="btn btn-ghost">Learn More</button>
+      <button class="btn btn-danger">Delete</button>
+      <button class="btn btn-disabled" disabled>Disabled</button>
+    </div>
+
+    <div class="sub-label">Sizes</div>
+    <div class="btn-grid">
+      <button class="btn btn-primary btn-sm">Small</button>
+      <button class="btn btn-primary">Medium</button>
+      <button class="btn btn-primary btn-lg">Large</button>
+    </div>
+
+    <div class="sub-label">With Icons</div>
+    <div class="btn-grid">
+      <button class="btn btn-primary"><span class="material-symbols-rounded" style="font-size:18px">flag</span> Start Match</button>
+      <button class="btn btn-outlined"><span class="material-symbols-rounded" style="font-size:18px">calendar_today</span> Schedule</button>
+      <button class="btn btn-secondary">Export <span class="material-symbols-rounded" style="font-size:18px">download</span></button>
+    </div>
+
+    <div class="sub-label">Loading State</div>
+    <div class="btn-grid">
+      <button class="btn btn-primary" style="opacity:.8">
+        <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite"></div>
+        Loading…
+      </button>
+    </div>
+
+    <div class="sub-label">Icon Buttons</div>
+    <div class="btn-grid">
+      <button class="btn-icon btn-icon-ghost"><span class="material-symbols-rounded" style="font-size:20px">arrow_back</span></button>
+      <button class="btn-icon btn-icon-primary"><span class="material-symbols-rounded" style="font-size:20px">add</span></button>
+      <button class="btn-icon btn-icon-outlined"><span class="material-symbols-rounded" style="font-size:20px">edit</span></button>
+      <button class="btn-icon btn-icon-ghost" style="background:rgba(239,68,68,.12);color:var(--error)"><span class="material-symbols-rounded" style="font-size:20px">delete</span></button>
+    </div>
+  </div>
+
+  <!-- ══ 6. CARDS ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">06 — Cards</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Default Card</div>
+        <div class="card-body">Surface background with subtle border. Used for content containers.</div>
+      </div>
+      <div class="card card-selected">
+        <div class="card-title" style="color:var(--primary)">Selected Card</div>
+        <div class="card-body">Primary border + tinted background for active selections.</div>
+      </div>
+      <div class="card card-flat">
+        <div class="card-title">Flat Card</div>
+        <div class="card-body">Surface-variant fill, no border. For secondary containers.</div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="background:var(--primary);height:80px;display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-rounded" style="font-size:36px;color:#fff;opacity:.8">flag</span>
+        </div>
+        <div style="padding:16px">
+          <div class="card-title">Media Card</div>
+          <div class="card-body">With header image / colour band.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 7. RADIO TILES ════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">07 — Radio Tiles <span class="tag">Custom</span></div>
+    <div class="radio-tile active">
+      <div class="radio-dot"><div class="radio-inner"></div></div>
+      <div class="radio-content">
+        <div class="radio-header">
+          <span class="radio-title">7 Aside</span>
+          <span class="radio-pill">7 Players</span>
+        </div>
+        <div class="radio-sub">Standard Match / Super Netball</div>
+      </div>
+    </div>
+    <div class="radio-tile">
+      <div class="radio-dot"><div class="radio-inner"></div></div>
+      <div class="radio-content">
+        <div class="radio-header">
+          <span class="radio-title" style="color:var(--text-2)">6 Aside</span>
+          <span class="radio-pill">6 Players</span>
+        </div>
+        <div class="radio-sub">Indoor / WINA Rules</div>
+      </div>
+    </div>
+    <div class="radio-tile">
+      <div class="radio-dot"><div class="radio-inner"></div></div>
+      <div class="radio-content">
+        <div class="radio-header">
+          <span class="radio-title" style="color:var(--text-2)">5 Aside</span>
+          <span class="radio-pill">5 Players</span>
+        </div>
+        <div class="radio-sub">FAST5 / Modern Format</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 8. CHIPS & BADGES ═════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">08 — Chips &amp; Badges</div>
+
+    <div class="sub-label">Chips</div>
+    <div class="chip-row">
+      <span class="chip chip-tonal">Tonal</span>
+      <span class="chip chip-selected">Selected</span>
+      <span class="chip chip-outlined">Outlined</span>
+      <span class="chip chip-filled">Filled</span>
+      <span class="chip chip-tonal"><span class="material-symbols-rounded" style="font-size:13px">flag</span> With Icon</span>
+      <span class="chip chip-selected"><span class="material-symbols-rounded" style="font-size:13px">check</span> Active</span>
+      <span class="chip chip-outlined">Filter <span class="material-symbols-rounded" style="font-size:12px;margin-left:3px">close</span></span>
+    </div>
+
+    <div class="sub-label">Badges</div>
+    <div class="chip-row">
+      <span class="badge badge-primary">Primary</span>
+      <span class="badge badge-success">Active</span>
+      <span class="badge badge-warning">Pending</span>
+      <span class="badge badge-error">Error</span>
+      <span class="badge badge-info">Info</span>
+      <span class="badge badge-neutral">Draft</span>
+      <span class="badge badge-primary">7 Players</span>
+      <span class="badge badge-success"><span class="material-symbols-rounded" style="font-size:9px">check_circle</span> Live</span>
+    </div>
+  </div>
+
+  <!-- ══ 9. INPUTS ═════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">09 — Inputs &amp; Form Controls</div>
+    <div class="two-col" style="gap:20px">
+
+      <div class="input-group">
+        <div class="input-label">Team Name</div>
+        <input class="input-field" placeholder="e.g. The Lightning" />
+        <div class="input-helper">Your team's official display name</div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Player Count</div>
+        <input class="input-field" value="7" />
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Competition</div>
+        <div class="dropdown-tile">
+          <span class="dropdown-placeholder">Select a Competition</span>
+          <span class="material-symbols-rounded" style="font-size:20px;color:var(--text-3)">expand_more</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Venue</div>
+        <div class="dropdown-tile">
+          <span class="dropdown-value">Auckland Arena</span>
+          <span class="material-symbols-rounded" style="font-size:20px;color:var(--text-3)">expand_more</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Scheduled Time</div>
+        <div class="date-tile">
+          <span class="material-symbols-rounded" style="font-size:18px;color:var(--text-3)">calendar_today</span>
+          <span class="date-text">Tue, 10 Mar 2026 — 18:00</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">Error State</div>
+        <input class="input-field error" value="bad value" />
+        <div class="input-error-text">This field is required</div>
+      </div>
+
+    </div>
+
+    <div class="sub-label">Progress Indicator</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-size:10px;color:var(--text-3);margin-bottom:8px">Step 1 of 4</div><div class="progress-dots"><div class="dot active"></div><div class="dot inactive"></div><div class="dot inactive"></div><div class="dot inactive"></div></div></div>
+      <div><div style="font-size:10px;color:var(--text-3);margin-bottom:8px">Step 2 of 4</div><div class="progress-dots"><div class="dot inactive"></div><div class="dot active"></div><div class="dot inactive"></div><div class="dot inactive"></div></div></div>
+      <div><div style="font-size:10px;color:var(--text-3);margin-bottom:8px">Step 3 of 4</div><div class="progress-dots"><div class="dot inactive"></div><div class="dot inactive"></div><div class="dot active"></div><div class="dot inactive"></div></div></div>
+      <div><div style="font-size:10px;color:var(--text-3);margin-bottom:8px">Step 4 of 4</div><div class="progress-dots"><div class="dot inactive"></div><div class="dot inactive"></div><div class="dot inactive"></div><div class="dot active"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 10. BOTTOM NAVIGATION ════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">10 — Bottom Navigation</div>
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <span class="material-symbols-rounded nav-icon">grid_view</span>
+        <span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-item active">
+        <div class="nav-pill">
+          <span class="material-symbols-rounded nav-icon">flag</span>
+        </div>
+        <span class="nav-label" style="color:var(--primary)">Games</span>
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-rounded nav-icon">group</span>
+        <span class="nav-label">Team</span>
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-rounded nav-icon">more_horiz</span>
+        <span class="nav-label">More</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 11. ELEVATION ════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">11 — Elevation &amp; Shadow</div>
+    <div class="elevation-grid">
+      <div class="elevation-item" style="box-shadow:none;border:1px solid var(--outline)"><div class="elevation-label">None</div><div style="font-size:10px;color:var(--text-3)">0dp</div></div>
+      <div class="elevation-item" style="box-shadow:0 1px 2px rgba(0,0,0,.3)"><div class="elevation-label">Low</div><div style="font-size:10px;color:var(--text-3)">1dp</div></div>
+      <div class="elevation-item" style="box-shadow:0 2px 6px rgba(0,0,0,.3)"><div class="elevation-label">Medium</div><div style="font-size:10px;color:var(--text-3)">3dp</div></div>
+      <div class="elevation-item" style="box-shadow:0 4px 12px rgba(0,0,0,.4)"><div class="elevation-label">High</div><div style="font-size:10px;color:var(--text-3)">6dp</div></div>
+      <div class="elevation-item" style="box-shadow:0 4px 16px rgba(59,130,246,.25)"><div class="elevation-label">Primary Glow</div><div style="font-size:10px;color:var(--primary)">btn shadow</div></div>
+    </div>
+  </div>
+
+  <!-- ══ 12. APP SCREEN PREVIEW ═══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">12 — Screen Preview — Match Setup</div>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="screen-topbar"></div>
+        <div class="screen-content">
+          <div class="screen-header">
+            <div class="screen-back"><span class="material-symbols-rounded" style="font-size:18px;color:#f1f5f9">arrow_back</span></div>
+            <span class="screen-title">Match Setup</span>
+            <div class="screen-avatar"><span class="material-symbols-rounded" style="font-size:18px;color:#94a3b8">person</span></div>
+          </div>
+          <div class="screen-progress">
+            <div class="screen-dot a"></div>
+            <div class="screen-dot i"></div>
+            <div class="screen-dot i"></div>
+            <div class="screen-dot i"></div>
+          </div>
+          <div class="screen-section-label">Game Format</div>
+          <div class="screen-radio-tile active">
+            <div class="screen-r-dot"><div class="screen-r-inner"></div></div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="screen-r-title">7 Aside</span>
+                <span class="screen-r-pill">7 Players</span>
+              </div>
+              <div class="screen-r-sub">Standard Match / Super Netball</div>
+            </div>
+          </div>
+          <div class="screen-radio-tile">
+            <div class="screen-r-dot"></div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="screen-r-title" style="color:#94a3b8">6 Aside</span>
+                <span class="screen-r-pill">6 Players</span>
+              </div>
+              <div class="screen-r-sub">Indoor / WINA Rules</div>
+            </div>
+          </div>
+          <div class="screen-radio-tile">
+            <div class="screen-r-dot"></div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="screen-r-title" style="color:#94a3b8">5 Aside</span>
+                <span class="screen-r-pill">5 Players</span>
+              </div>
+              <div class="screen-r-sub">FAST5 / Modern Format</div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="screen-dropdown">
+            <span>Select a Competition</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:#64748b">expand_more</span>
+          </div>
+          <div class="screen-dropdown">
+            <span>Select a Venue</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:#64748b">expand_more</span>
+          </div>
+          <div class="screen-dropdown" style="gap:10px">
+            <span class="material-symbols-rounded" style="font-size:16px;color:#64748b">calendar_today</span>
+            <span style="font-size:12px;color:#f1f5f9;font-weight:600">Tue, 10 Mar 2026 — 18:00</span>
+          </div>
+          <div class="screen-cta">Continue</div>
+        </div>
+        <div class="screen-nav">
+          <div class="screen-nav-item"><span class="material-symbols-rounded m">grid_view</span><span>Dashboard</span></div>
+          <div class="screen-nav-item act">
+            <div class="screen-nav-pill"><span class="material-symbols-rounded m" style="color:var(--primary)">flag</span></div>
+            <span style="color:var(--primary)">Games</span>
+          </div>
+          <div class="screen-nav-item"><span class="material-symbols-rounded m">group</span><span>Team</span></div>
+          <div class="screen-nav-item"><span class="material-symbols-rounded m">more_horiz</span><span>More</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 13. USAGE GUIDE ══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">13 — Flutter Usage</div>
+    <div class="card" style="font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.8;color:var(--text-2)">
+      <div style="color:var(--text-3);margin-bottom:12px">// pubspec.yaml — add these dependencies</div>
+      <div><span style="color:var(--primary)">google_fonts</span>: ^6.0.0</div>
+      <div style="margin-top:16px;color:var(--text-3)">// main.dart</div>
+      <div><span style="color:#06b6d4">import</span> <span style="color:#22c55e">'design_system/design_system.dart'</span>;</div>
+      <div style="margin-top:8px">MaterialApp(</div>
+      <div>&nbsp;&nbsp;theme:      <span style="color:var(--primary)">AppTheme.light</span>,</div>
+      <div>&nbsp;&nbsp;darkTheme:  <span style="color:var(--primary)">AppTheme.dark</span>,</div>
+      <div>&nbsp;&nbsp;themeMode:  ThemeMode.system,</div>
+      <div>);</div>
+      <div style="margin-top:16px;color:var(--text-3)">// Tokens</div>
+      <div><span style="color:var(--primary)">AppColors</span>.primary       <span style="color:var(--text-3)">// #3B82F6</span></div>
+      <div><span style="color:var(--primary)">AppSpacing</span>.pagePadding   <span style="color:var(--text-3)">// EdgeInsets</span></div>
+      <div><span style="color:var(--primary)">AppRadius</span>.brLg           <span style="color:var(--text-3)">// BorderRadius</span></div>
+      <div><span style="color:var(--primary)">AppTypography</span>.titleLarge  <span style="color:var(--text-3)">// TextStyle</span></div>
+      <div style="margin-top:16px;color:var(--text-3)">// Widgets</div>
+      <div><span style="color:var(--primary)">AppButton</span>(label: <span style="color:#22c55e">'Continue'</span>, onPressed: () {})</div>
+      <div><span style="color:var(--primary)">RadioTile</span>(title: <span style="color:#22c55e">'7 Aside'</span>, isSelected: true, onTap: () {})</div>
+      <div><span style="color:var(--primary)">ProgressDots</span>(totalSteps: 4, currentStep: 0)</div>
+      <div><span style="color:var(--primary)">AppChip</span>(label: <span style="color:#22c55e">'Super Netball'</span>)</div>
+      <div><span style="color:var(--primary)">AppBadge</span>(label: <span style="color:#22c55e">'Live'</span>, color: AppBadgeColor.success)</div>
+      <div><span style="color:var(--primary)">AppDropdownTile</span>(label: <span style="color:#22c55e">'Competition'</span>, placeholder: <span style="color:#22c55e">'Select…'</span>)</div>
+    </div>
+  </div>
+
+</div><!-- end .page -->
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+  let dark = true;
+  function toggleTheme() {
+    dark = !dark;
+    document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    const btn = document.getElementById('themeBtn');
+    btn.innerHTML = dark
+      ? '<span class="material-symbols-rounded" style="font-size:16px">light_mode</span> Light Mode'
+      : '<span class="material-symbols-rounded" style="font-size:16px">dark_mode</span> Dark Mode';
+  }
+</script>
+</body>
+</html>

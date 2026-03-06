@@ -8,7 +8,9 @@ abstract class GamesEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadGames extends GamesEvent {}
+class LoadGames extends GamesEvent {
+  const LoadGames();
+}
 
 class GamesUpdated extends GamesEvent {
   const GamesUpdated(this.games);
@@ -16,4 +18,8 @@ class GamesUpdated extends GamesEvent {
 
   @override
   List<Object?> get props => [games];
+}
+
+class GamesLoadError extends GamesEvent {
+  const GamesLoadError();
 }

@@ -184,6 +184,9 @@ class _DateTimePicker extends StatelessWidget {
                 context,
               ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
             child: Row(
               children: [
@@ -229,19 +232,13 @@ class _FormatSelector extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest.withValues(
-                        alpha: 0.3,
-                      ),
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
                       ? Theme.of(context).colorScheme.primary
-                      : Colors.transparent,
-                  width: 2,
+                      : Theme.of(context).colorScheme.outline,
+                  width: isSelected ? 2 : 1,
                 ),
               ),
               child: Row(
@@ -250,9 +247,12 @@ class _FormatSelector extends StatelessWidget {
                     isSelected
                         ? Icons.radio_button_checked
                         : Icons.radio_button_off,
+                    size: isSelected ? 24 : 20,
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary
-                        : null,
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -264,8 +264,9 @@ class _FormatSelector extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
                             color: isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : null,
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.7),
                           ),
                         ),
                         Text(
@@ -273,21 +274,41 @@ class _FormatSelector extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             color: isSelected
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimaryContainer
-                                : Colors.blueGrey,
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.5),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Text(
-                    '${format.playersPerSide} PLAYERS',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.15)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                    child: Text(
+                      '${format.playersPerSide} PLAYERS',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.blueGrey,
+                      ),
                     ),
                   ),
                 ],

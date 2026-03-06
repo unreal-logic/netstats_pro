@@ -27,6 +27,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     await _gamesSubscription?.cancel();
     _gamesSubscription = gameRepository.watchAllGames().listen(
       (games) => add(DashboardUpdated(games)),
+      onError: (Object e, StackTrace s) =>
+          emit(state.copyWith(status: DashboardStatus.failure)),
     );
   }
 

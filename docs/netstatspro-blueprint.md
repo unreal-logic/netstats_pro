@@ -171,3 +171,34 @@ This document is the authoritative blueprint for the product: pages, actions, da
 - **Local Database** — Drift (SQLite). Used for robust offline-first architecture, storing games, lineups, and queued events. Selected over Isar for stable relationship mapping and LTS support.
 - **UI & Navigation** — Material 3 Adaptive Form Factors. Uses `NavigationBar` on mobile devices (<600px viewport) and dynamically adapts to a side-anchored `NavigationRail` on larger tablet/desktop form factors.
 - **Clean Architecture Principles** — Domain layer relies heavily on isolated Use Cases (e.g., `GetMatchSummaryUseCase`, `GetLiveMatchUseCase`) to retrieve and aggregate repository data deterministically.
+
+## Design System (`lib/core/design_system/`)
+
+The application ships a complete, standalone design system installed under `lib/core/design_system/`. Import the single barrel file to access all tokens, theme, and widgets:
+
+```dart
+import 'package:netstats_pro/core/design_system/design_system.dart';
+```
+
+### Structure
+
+| Path | Contents |
+|------|----------|
+| `tokens/app_colors.dart` | `AppColors` — brand, semantic (success/warning/error/info), full slate-neutral palette, dark/light surface pairs, primary-tinted surfaces |
+| `tokens/app_typography.dart` | `AppTypography` — full M3 TypeScale using **Inter** (google_fonts); ships a `TextTheme` factory getter |
+| `tokens/app_spacing.dart` | `AppSpacing` (8px grid, EdgeInsets helpers, SizedBox gaps) · `AppRadius` (border radius constants + helpers) · `AppElevation` (elevation levels, BoxShadow presets) |
+| `theme/app_theme.dart` | `AppTheme.light` / `AppTheme.dark` — fully-explicit `ColorScheme` + all component themes |
+| `widgets/buttons/app_button.dart` | `AppButton` (5 variants × 3 sizes) · `AppIconButton` |
+| `widgets/app_widgets.dart` | `AppCard` · `RadioTile` · `ProgressDots` · `AppChip` · `AppBadge` · `AppDropdownTile` |
+
+### Color Palette
+- **Primary** — Blue-500 (`#3B82F6`) for brand actions
+- **Neutrals** — Full Slate palette (50–950) for surfaces and text
+- **Semantic** — Green success, Amber warning, Red error, Cyan info
+
+### Compatibility Shims
+`lib/core/theme/` re-exports the design system so all existing import paths remain valid:
+- `core/theme/app_theme.dart` → re-exports `AppTheme`
+- `core/theme/colors.dart` → re-exports `AppColors`; alias `NetStatsColors` retained for backward compat
+- `core/theme/typography.dart` → re-exports `AppTypography`
+
