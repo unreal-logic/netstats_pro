@@ -36,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -105,6 +105,23 @@ class AppDatabase extends _$AppDatabase {
             );
           } on Exception catch (_) {
             // Column might already exist
+          }
+        }
+        if (from < 9) {
+          await m.addColumn(
+            games,
+            (games as dynamic).trackingMode as GeneratedColumn<String>,
+          );
+        }
+        if (from < 11) {
+          try {
+            // Robust check/add for tracking_mode
+            await customStatement(
+              'ALTER TABLE games ADD COLUMN tracking_mode TEXT '
+              'DEFAULT "fullStatistics";',
+            );
+          } on Exception catch (_) {
+            // Column might already exist from a partial sync
           }
         }
       },

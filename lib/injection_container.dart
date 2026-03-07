@@ -56,7 +56,12 @@ Future<void> init() async {
       )
       // ─── Services ─────────────────────────────────────────────────────────
       ..registerLazySingleton<DemoDataService>(
-        () => DemoDataService(teamRepository: sl(), playerRepository: sl()),
+        () => DemoDataService(
+          teamRepository: sl(),
+          playerRepository: sl(),
+          competitionRepository: sl(),
+          venueRepository: sl(),
+        ),
       )
       // ─── Use Cases ────────────────────────────────────────────────────────
       ..registerLazySingleton<GetLiveMatchUseCase>(

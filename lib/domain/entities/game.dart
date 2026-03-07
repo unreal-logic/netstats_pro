@@ -10,7 +10,7 @@ enum GameFormat {
     NetballPosition.wd,
     NetballPosition.gd,
     NetballPosition.gk,
-  ]),
+  ], 15),
   sixAside('6 aside', 6, [
     NetballPosition.a1,
     NetballPosition.a2,
@@ -18,21 +18,40 @@ enum GameFormat {
     NetballPosition.l2,
     NetballPosition.d1,
     NetballPosition.d2,
-  ]),
+  ], 12),
   fiveAside('5 aside', 5, [
     NetballPosition.gs,
     NetballPosition.ga,
     NetballPosition.c,
     NetballPosition.gd,
     NetballPosition.gk,
-  ])
+  ], 10)
   ;
 
-  const GameFormat(this.displayName, this.playersPerSide, this.positions);
+  const GameFormat(
+    this.displayName,
+    this.playersPerSide,
+    this.positions,
+    this.defaultQuarterMinutes,
+  );
 
   final String displayName;
   final int playersPerSide;
   final List<NetballPosition> positions;
+  final int defaultQuarterMinutes;
+}
+
+enum TrackingMode {
+  fullStatistics(
+    'Full Statistics',
+    'Capture every pass, turnover, and shot in detail.',
+  ),
+  scoreOnly('Score Only', 'Keep it simple and only track the match score.')
+  ;
+
+  const TrackingMode(this.displayName, this.description);
+  final String displayName;
+  final String description;
 }
 
 enum GameStatus { scheduled, inProgress, completed, cancelled }
@@ -48,6 +67,8 @@ class Game extends Equatable {
     required this.status,
     required this.ourFirstCentrePass,
     required this.createdAt,
+    this.trackingMode = TrackingMode.fullStatistics,
+    this.quarterDurationMinutes = 15,
     this.competitionId,
     this.venueId,
     this.homeTeamName = 'OUR TEAM', // Default for now
@@ -65,8 +86,10 @@ class Game extends Equatable {
   final DateTime scheduledAt;
   final GameFormat format;
   final GameStatus status;
+  final TrackingMode trackingMode;
   final bool ourFirstCentrePass;
   final bool isSuperShot;
+  final int quarterDurationMinutes;
   final int? homeScore;
   final int? awayScore;
   final DateTime createdAt;
@@ -83,8 +106,10 @@ class Game extends Equatable {
     scheduledAt,
     format,
     status,
+    trackingMode,
     ourFirstCentrePass,
     isSuperShot,
+    quarterDurationMinutes,
     homeScore,
     awayScore,
     createdAt,
@@ -101,8 +126,10 @@ class Game extends Equatable {
     DateTime? scheduledAt,
     GameFormat? format,
     GameStatus? status,
+    TrackingMode? trackingMode,
     bool? ourFirstCentrePass,
     bool? isSuperShot,
+    int? quarterDurationMinutes,
     int? homeScore,
     int? awayScore,
     DateTime? createdAt,
@@ -118,8 +145,11 @@ class Game extends Equatable {
       scheduledAt: scheduledAt ?? this.scheduledAt,
       format: format ?? this.format,
       status: status ?? this.status,
+      trackingMode: trackingMode ?? this.trackingMode,
       ourFirstCentrePass: ourFirstCentrePass ?? this.ourFirstCentrePass,
       isSuperShot: isSuperShot ?? this.isSuperShot,
+      quarterDurationMinutes:
+          quarterDurationMinutes ?? this.quarterDurationMinutes,
       homeScore: homeScore ?? this.homeScore,
       awayScore: awayScore ?? this.awayScore,
       createdAt: createdAt ?? this.createdAt,

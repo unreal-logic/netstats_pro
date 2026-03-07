@@ -24,8 +24,10 @@ class DriftGameRepository implements GameRepository {
             scheduledAt: game.scheduledAt,
             format: game.format.name,
             status: game.status.name,
+            trackingMode: Value(game.trackingMode.name),
             homeTeamName: Value(game.homeTeamName),
             ourFirstCentrePass: Value(game.ourFirstCentrePass),
+            quarterDurationMinutes: Value(game.quarterDurationMinutes),
           ),
         );
   }
@@ -116,8 +118,12 @@ class DriftGameRepository implements GameRepository {
       scheduledAt: row.scheduledAt,
       format: GameFormat.values.firstWhere((e) => e.name == row.format),
       status: GameStatus.values.firstWhere((e) => e.name == row.status),
+      trackingMode: TrackingMode.values.firstWhere(
+        (e) => e.name == row.trackingMode,
+      ),
       homeTeamName: row.homeTeamName,
       ourFirstCentrePass: row.ourFirstCentrePass,
+      quarterDurationMinutes: row.quarterDurationMinutes,
       homeScore: row.homeScore,
       awayScore: row.awayScore,
       createdAt: row.createdAt,

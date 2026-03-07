@@ -1056,6 +1056,18 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _trackingModeMeta = const VerificationMeta(
+    'trackingMode',
+  );
+  @override
+  late final GeneratedColumn<String> trackingMode = GeneratedColumn<String>(
+    'tracking_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('fullStatistics'),
+  );
   static const VerificationMeta _ourFirstCentrePassMeta =
       const VerificationMeta('ourFirstCentrePass');
   @override
@@ -1107,6 +1119,17 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _quarterDurationMinutesMeta =
+      const VerificationMeta('quarterDurationMinutes');
+  @override
+  late final GeneratedColumn<int> quarterDurationMinutes = GeneratedColumn<int>(
+    'quarter_duration_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(15),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1131,10 +1154,12 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
     venueId,
     format,
     status,
+    trackingMode,
     ourFirstCentrePass,
     isSuperShot,
     homeScore,
     awayScore,
+    quarterDurationMinutes,
     createdAt,
   ];
   @override
@@ -1233,6 +1258,15 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
     } else if (isInserting) {
       context.missing(_statusMeta);
     }
+    if (data.containsKey('tracking_mode')) {
+      context.handle(
+        _trackingModeMeta,
+        trackingMode.isAcceptableOrUnknown(
+          data['tracking_mode']!,
+          _trackingModeMeta,
+        ),
+      );
+    }
     if (data.containsKey('our_first_centre_pass')) {
       context.handle(
         _ourFirstCentrePassMeta,
@@ -1261,6 +1295,15 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
       context.handle(
         _awayScoreMeta,
         awayScore.isAcceptableOrUnknown(data['away_score']!, _awayScoreMeta),
+      );
+    }
+    if (data.containsKey('quarter_duration_minutes')) {
+      context.handle(
+        _quarterDurationMinutesMeta,
+        quarterDurationMinutes.isAcceptableOrUnknown(
+          data['quarter_duration_minutes']!,
+          _quarterDurationMinutesMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -1318,6 +1361,10 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
         DriftSqlType.string,
         data['${effectivePrefix}status'],
       )!,
+      trackingMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tracking_mode'],
+      )!,
       ourFirstCentrePass: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}our_first_centre_pass'],
@@ -1334,6 +1381,10 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
         DriftSqlType.int,
         data['${effectivePrefix}away_score'],
       ),
+      quarterDurationMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quarter_duration_minutes'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1358,10 +1409,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
   final int? venueId;
   final String format;
   final String status;
+  final String trackingMode;
   final bool ourFirstCentrePass;
   final bool isSuperShot;
   final int? homeScore;
   final int? awayScore;
+  final int quarterDurationMinutes;
   final DateTime createdAt;
   const GameEntry({
     required this.id,
@@ -1374,10 +1427,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     this.venueId,
     required this.format,
     required this.status,
+    required this.trackingMode,
     required this.ourFirstCentrePass,
     required this.isSuperShot,
     this.homeScore,
     this.awayScore,
+    required this.quarterDurationMinutes,
     required this.createdAt,
   });
   @override
@@ -1397,6 +1452,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     }
     map['format'] = Variable<String>(format);
     map['status'] = Variable<String>(status);
+    map['tracking_mode'] = Variable<String>(trackingMode);
     map['our_first_centre_pass'] = Variable<bool>(ourFirstCentrePass);
     map['is_super_shot'] = Variable<bool>(isSuperShot);
     if (!nullToAbsent || homeScore != null) {
@@ -1405,6 +1461,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     if (!nullToAbsent || awayScore != null) {
       map['away_score'] = Variable<int>(awayScore);
     }
+    map['quarter_duration_minutes'] = Variable<int>(quarterDurationMinutes);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -1425,6 +1482,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
           : Value(venueId),
       format: Value(format),
       status: Value(status),
+      trackingMode: Value(trackingMode),
       ourFirstCentrePass: Value(ourFirstCentrePass),
       isSuperShot: Value(isSuperShot),
       homeScore: homeScore == null && nullToAbsent
@@ -1433,6 +1491,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       awayScore: awayScore == null && nullToAbsent
           ? const Value.absent()
           : Value(awayScore),
+      quarterDurationMinutes: Value(quarterDurationMinutes),
       createdAt: Value(createdAt),
     );
   }
@@ -1453,10 +1512,14 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       venueId: serializer.fromJson<int?>(json['venueId']),
       format: serializer.fromJson<String>(json['format']),
       status: serializer.fromJson<String>(json['status']),
+      trackingMode: serializer.fromJson<String>(json['trackingMode']),
       ourFirstCentrePass: serializer.fromJson<bool>(json['ourFirstCentrePass']),
       isSuperShot: serializer.fromJson<bool>(json['isSuperShot']),
       homeScore: serializer.fromJson<int?>(json['homeScore']),
       awayScore: serializer.fromJson<int?>(json['awayScore']),
+      quarterDurationMinutes: serializer.fromJson<int>(
+        json['quarterDurationMinutes'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -1474,10 +1537,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       'venueId': serializer.toJson<int?>(venueId),
       'format': serializer.toJson<String>(format),
       'status': serializer.toJson<String>(status),
+      'trackingMode': serializer.toJson<String>(trackingMode),
       'ourFirstCentrePass': serializer.toJson<bool>(ourFirstCentrePass),
       'isSuperShot': serializer.toJson<bool>(isSuperShot),
       'homeScore': serializer.toJson<int?>(homeScore),
       'awayScore': serializer.toJson<int?>(awayScore),
+      'quarterDurationMinutes': serializer.toJson<int>(quarterDurationMinutes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -1493,10 +1558,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     Value<int?> venueId = const Value.absent(),
     String? format,
     String? status,
+    String? trackingMode,
     bool? ourFirstCentrePass,
     bool? isSuperShot,
     Value<int?> homeScore = const Value.absent(),
     Value<int?> awayScore = const Value.absent(),
+    int? quarterDurationMinutes,
     DateTime? createdAt,
   }) => GameEntry(
     id: id ?? this.id,
@@ -1511,10 +1578,13 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     venueId: venueId.present ? venueId.value : this.venueId,
     format: format ?? this.format,
     status: status ?? this.status,
+    trackingMode: trackingMode ?? this.trackingMode,
     ourFirstCentrePass: ourFirstCentrePass ?? this.ourFirstCentrePass,
     isSuperShot: isSuperShot ?? this.isSuperShot,
     homeScore: homeScore.present ? homeScore.value : this.homeScore,
     awayScore: awayScore.present ? awayScore.value : this.awayScore,
+    quarterDurationMinutes:
+        quarterDurationMinutes ?? this.quarterDurationMinutes,
     createdAt: createdAt ?? this.createdAt,
   );
   GameEntry copyWithCompanion(GamesCompanion data) {
@@ -1539,6 +1609,9 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       venueId: data.venueId.present ? data.venueId.value : this.venueId,
       format: data.format.present ? data.format.value : this.format,
       status: data.status.present ? data.status.value : this.status,
+      trackingMode: data.trackingMode.present
+          ? data.trackingMode.value
+          : this.trackingMode,
       ourFirstCentrePass: data.ourFirstCentrePass.present
           ? data.ourFirstCentrePass.value
           : this.ourFirstCentrePass,
@@ -1547,6 +1620,9 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
           : this.isSuperShot,
       homeScore: data.homeScore.present ? data.homeScore.value : this.homeScore,
       awayScore: data.awayScore.present ? data.awayScore.value : this.awayScore,
+      quarterDurationMinutes: data.quarterDurationMinutes.present
+          ? data.quarterDurationMinutes.value
+          : this.quarterDurationMinutes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1564,10 +1640,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
           ..write('venueId: $venueId, ')
           ..write('format: $format, ')
           ..write('status: $status, ')
+          ..write('trackingMode: $trackingMode, ')
           ..write('ourFirstCentrePass: $ourFirstCentrePass, ')
           ..write('isSuperShot: $isSuperShot, ')
           ..write('homeScore: $homeScore, ')
           ..write('awayScore: $awayScore, ')
+          ..write('quarterDurationMinutes: $quarterDurationMinutes, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1585,10 +1663,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     venueId,
     format,
     status,
+    trackingMode,
     ourFirstCentrePass,
     isSuperShot,
     homeScore,
     awayScore,
+    quarterDurationMinutes,
     createdAt,
   );
   @override
@@ -1605,10 +1685,12 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
           other.venueId == this.venueId &&
           other.format == this.format &&
           other.status == this.status &&
+          other.trackingMode == this.trackingMode &&
           other.ourFirstCentrePass == this.ourFirstCentrePass &&
           other.isSuperShot == this.isSuperShot &&
           other.homeScore == this.homeScore &&
           other.awayScore == this.awayScore &&
+          other.quarterDurationMinutes == this.quarterDurationMinutes &&
           other.createdAt == this.createdAt);
 }
 
@@ -1623,10 +1705,12 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
   final Value<int?> venueId;
   final Value<String> format;
   final Value<String> status;
+  final Value<String> trackingMode;
   final Value<bool> ourFirstCentrePass;
   final Value<bool> isSuperShot;
   final Value<int?> homeScore;
   final Value<int?> awayScore;
+  final Value<int> quarterDurationMinutes;
   final Value<DateTime> createdAt;
   const GamesCompanion({
     this.id = const Value.absent(),
@@ -1639,10 +1723,12 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     this.venueId = const Value.absent(),
     this.format = const Value.absent(),
     this.status = const Value.absent(),
+    this.trackingMode = const Value.absent(),
     this.ourFirstCentrePass = const Value.absent(),
     this.isSuperShot = const Value.absent(),
     this.homeScore = const Value.absent(),
     this.awayScore = const Value.absent(),
+    this.quarterDurationMinutes = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   GamesCompanion.insert({
@@ -1656,10 +1742,12 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     this.venueId = const Value.absent(),
     required String format,
     required String status,
+    this.trackingMode = const Value.absent(),
     this.ourFirstCentrePass = const Value.absent(),
     this.isSuperShot = const Value.absent(),
     this.homeScore = const Value.absent(),
     this.awayScore = const Value.absent(),
+    this.quarterDurationMinutes = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : opponentName = Value(opponentName),
        competitionName = Value(competitionName),
@@ -1678,10 +1766,12 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     Expression<int>? venueId,
     Expression<String>? format,
     Expression<String>? status,
+    Expression<String>? trackingMode,
     Expression<bool>? ourFirstCentrePass,
     Expression<bool>? isSuperShot,
     Expression<int>? homeScore,
     Expression<int>? awayScore,
+    Expression<int>? quarterDurationMinutes,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -1695,11 +1785,14 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
       if (venueId != null) 'venue_id': venueId,
       if (format != null) 'format': format,
       if (status != null) 'status': status,
+      if (trackingMode != null) 'tracking_mode': trackingMode,
       if (ourFirstCentrePass != null)
         'our_first_centre_pass': ourFirstCentrePass,
       if (isSuperShot != null) 'is_super_shot': isSuperShot,
       if (homeScore != null) 'home_score': homeScore,
       if (awayScore != null) 'away_score': awayScore,
+      if (quarterDurationMinutes != null)
+        'quarter_duration_minutes': quarterDurationMinutes,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1715,10 +1808,12 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     Value<int?>? venueId,
     Value<String>? format,
     Value<String>? status,
+    Value<String>? trackingMode,
     Value<bool>? ourFirstCentrePass,
     Value<bool>? isSuperShot,
     Value<int?>? homeScore,
     Value<int?>? awayScore,
+    Value<int>? quarterDurationMinutes,
     Value<DateTime>? createdAt,
   }) {
     return GamesCompanion(
@@ -1732,10 +1827,13 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
       venueId: venueId ?? this.venueId,
       format: format ?? this.format,
       status: status ?? this.status,
+      trackingMode: trackingMode ?? this.trackingMode,
       ourFirstCentrePass: ourFirstCentrePass ?? this.ourFirstCentrePass,
       isSuperShot: isSuperShot ?? this.isSuperShot,
       homeScore: homeScore ?? this.homeScore,
       awayScore: awayScore ?? this.awayScore,
+      quarterDurationMinutes:
+          quarterDurationMinutes ?? this.quarterDurationMinutes,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1773,6 +1871,9 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (trackingMode.present) {
+      map['tracking_mode'] = Variable<String>(trackingMode.value);
+    }
     if (ourFirstCentrePass.present) {
       map['our_first_centre_pass'] = Variable<bool>(ourFirstCentrePass.value);
     }
@@ -1784,6 +1885,11 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     }
     if (awayScore.present) {
       map['away_score'] = Variable<int>(awayScore.value);
+    }
+    if (quarterDurationMinutes.present) {
+      map['quarter_duration_minutes'] = Variable<int>(
+        quarterDurationMinutes.value,
+      );
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -1804,10 +1910,12 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
           ..write('venueId: $venueId, ')
           ..write('format: $format, ')
           ..write('status: $status, ')
+          ..write('trackingMode: $trackingMode, ')
           ..write('ourFirstCentrePass: $ourFirstCentrePass, ')
           ..write('isSuperShot: $isSuperShot, ')
           ..write('homeScore: $homeScore, ')
           ..write('awayScore: $awayScore, ')
+          ..write('quarterDurationMinutes: $quarterDurationMinutes, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -4447,10 +4555,12 @@ typedef $$GamesTableCreateCompanionBuilder =
       Value<int?> venueId,
       required String format,
       required String status,
+      Value<String> trackingMode,
       Value<bool> ourFirstCentrePass,
       Value<bool> isSuperShot,
       Value<int?> homeScore,
       Value<int?> awayScore,
+      Value<int> quarterDurationMinutes,
       Value<DateTime> createdAt,
     });
 typedef $$GamesTableUpdateCompanionBuilder =
@@ -4465,10 +4575,12 @@ typedef $$GamesTableUpdateCompanionBuilder =
       Value<int?> venueId,
       Value<String> format,
       Value<String> status,
+      Value<String> trackingMode,
       Value<bool> ourFirstCentrePass,
       Value<bool> isSuperShot,
       Value<int?> homeScore,
       Value<int?> awayScore,
+      Value<int> quarterDurationMinutes,
       Value<DateTime> createdAt,
     });
 
@@ -4571,6 +4683,11 @@ class $$GamesTableFilterComposer extends Composer<_$AppDatabase, $GamesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get trackingMode => $composableBuilder(
+    column: $table.trackingMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get ourFirstCentrePass => $composableBuilder(
     column: $table.ourFirstCentrePass,
     builder: (column) => ColumnFilters(column),
@@ -4588,6 +4705,11 @@ class $$GamesTableFilterComposer extends Composer<_$AppDatabase, $GamesTable> {
 
   ColumnFilters<int> get awayScore => $composableBuilder(
     column: $table.awayScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quarterDurationMinutes => $composableBuilder(
+    column: $table.quarterDurationMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4706,6 +4828,11 @@ class $$GamesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get trackingMode => $composableBuilder(
+    column: $table.trackingMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get ourFirstCentrePass => $composableBuilder(
     column: $table.ourFirstCentrePass,
     builder: (column) => ColumnOrderings(column),
@@ -4723,6 +4850,11 @@ class $$GamesTableOrderingComposer
 
   ColumnOrderings<int> get awayScore => $composableBuilder(
     column: $table.awayScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quarterDurationMinutes => $composableBuilder(
+    column: $table.quarterDurationMinutes,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4781,6 +4913,11 @@ class $$GamesTableAnnotationComposer
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
+  GeneratedColumn<String> get trackingMode => $composableBuilder(
+    column: $table.trackingMode,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get ourFirstCentrePass => $composableBuilder(
     column: $table.ourFirstCentrePass,
     builder: (column) => column,
@@ -4796,6 +4933,11 @@ class $$GamesTableAnnotationComposer
 
   GeneratedColumn<int> get awayScore =>
       $composableBuilder(column: $table.awayScore, builder: (column) => column);
+
+  GeneratedColumn<int> get quarterDurationMinutes => $composableBuilder(
+    column: $table.quarterDurationMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -4889,10 +5031,12 @@ class $$GamesTableTableManager
                 Value<int?> venueId = const Value.absent(),
                 Value<String> format = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String> trackingMode = const Value.absent(),
                 Value<bool> ourFirstCentrePass = const Value.absent(),
                 Value<bool> isSuperShot = const Value.absent(),
                 Value<int?> homeScore = const Value.absent(),
                 Value<int?> awayScore = const Value.absent(),
+                Value<int> quarterDurationMinutes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => GamesCompanion(
                 id: id,
@@ -4905,10 +5049,12 @@ class $$GamesTableTableManager
                 venueId: venueId,
                 format: format,
                 status: status,
+                trackingMode: trackingMode,
                 ourFirstCentrePass: ourFirstCentrePass,
                 isSuperShot: isSuperShot,
                 homeScore: homeScore,
                 awayScore: awayScore,
+                quarterDurationMinutes: quarterDurationMinutes,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -4923,10 +5069,12 @@ class $$GamesTableTableManager
                 Value<int?> venueId = const Value.absent(),
                 required String format,
                 required String status,
+                Value<String> trackingMode = const Value.absent(),
                 Value<bool> ourFirstCentrePass = const Value.absent(),
                 Value<bool> isSuperShot = const Value.absent(),
                 Value<int?> homeScore = const Value.absent(),
                 Value<int?> awayScore = const Value.absent(),
+                Value<int> quarterDurationMinutes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => GamesCompanion.insert(
                 id: id,
@@ -4939,10 +5087,12 @@ class $$GamesTableTableManager
                 venueId: venueId,
                 format: format,
                 status: status,
+                trackingMode: trackingMode,
                 ourFirstCentrePass: ourFirstCentrePass,
                 isSuperShot: isSuperShot,
                 homeScore: homeScore,
                 awayScore: awayScore,
+                quarterDurationMinutes: quarterDurationMinutes,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

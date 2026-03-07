@@ -16,7 +16,7 @@ class GamesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<GamesBloc>()..add(LoadGames()),
+      create: (context) => sl<GamesBloc>()..add(const LoadGames()),
       child: Scaffold(
         appBar: const PremiumAppBar(
           title: 'GAMES',

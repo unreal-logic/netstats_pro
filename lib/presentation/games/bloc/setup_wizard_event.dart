@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
 
@@ -62,6 +63,13 @@ class FormatChanged extends SetupWizardEvent {
   List<Object?> get props => [format];
 }
 
+class TrackingModeChanged extends SetupWizardEvent {
+  const TrackingModeChanged(this.mode);
+  final TrackingMode mode;
+  @override
+  List<Object?> get props => [mode];
+}
+
 class PositionAssigned extends SetupWizardEvent {
   const PositionAssigned(this.position, this.player);
   final NetballPosition position;
@@ -77,13 +85,94 @@ class FirstCentrePassToggled extends SetupWizardEvent {
   List<Object?> get props => [ourPass];
 }
 
-class AutoAssignLineup extends SetupWizardEvent {}
+class AutoAssignLineup extends SetupWizardEvent {
+  const AutoAssignLineup({this.isHomeTeam = true});
+  final bool isHomeTeam;
+  @override
+  List<Object?> get props => [isHomeTeam];
+}
 
 class IsSuperShotToggled extends SetupWizardEvent {
   const IsSuperShotToggled({required this.isSuperShot});
   final bool isSuperShot;
   @override
   List<Object?> get props => [isSuperShot];
+}
+
+class QuickCreateCompetition extends SetupWizardEvent {
+  const QuickCreateCompetition(this.name);
+  final String name;
+  @override
+  List<Object?> get props => [name];
+}
+
+class QuickCreateVenue extends SetupWizardEvent {
+  const QuickCreateVenue(this.name);
+  final String name;
+  @override
+  List<Object?> get props => [name];
+}
+
+class QuickCreateTeam extends SetupWizardEvent {
+  const QuickCreateTeam({
+    required this.name,
+    required this.isHomeTeam,
+    this.color,
+  });
+  final String name;
+  // If true → this becomes the home team; false → opponent
+  final bool isHomeTeam;
+  final Color? color;
+  @override
+  List<Object?> get props => [name, isHomeTeam, color];
+}
+
+class TrackBothTeamsToggled extends SetupWizardEvent {
+  const TrackBothTeamsToggled({required this.value});
+  final bool value;
+  @override
+  List<Object?> get props => [value];
+}
+
+class QuickCreatePlayer extends SetupWizardEvent {
+  const QuickCreatePlayer({
+    required this.firstName,
+    required this.lastName,
+    required this.position,
+    required this.isHomeTeam,
+    required this.gender,
+    this.heightCm,
+  });
+  final String firstName;
+  final String lastName;
+  final NetballPosition position;
+  final bool isHomeTeam;
+  final Gender gender;
+  final double? heightCm;
+  @override
+  List<Object?> get props => [
+    firstName,
+    lastName,
+    position,
+    isHomeTeam,
+    gender,
+    heightCm,
+  ];
+}
+
+class OpponentPositionAssigned extends SetupWizardEvent {
+  const OpponentPositionAssigned(this.position, this.player);
+  final NetballPosition position;
+  final Player? player;
+  @override
+  List<Object?> get props => [position, player];
+}
+
+class QuarterDurationChanged extends SetupWizardEvent {
+  const QuarterDurationChanged(this.minutes);
+  final int minutes;
+  @override
+  List<Object?> get props => [minutes];
 }
 
 class SetupSubmitted extends SetupWizardEvent {}

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:netstats_pro/domain/entities/competition.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
@@ -22,12 +23,18 @@ class SetupWizardState extends Equatable {
     this.teams = const [],
     DateTime? scheduledAt,
     this.format = GameFormat.sevenAside,
+    this.trackingMode = TrackingMode.fullStatistics,
+    this.trackBothTeams = false,
     this.lineup = const {},
+    this.opponentLineup = const {},
+    int? quarterDurationMinutes,
     this.ourFirstCentrePass = true,
     this.isSuperShot = false,
     this.errorMessage,
     this.createdGameId,
-  }) : scheduledAt = scheduledAt ?? _initialDate;
+  }) : scheduledAt = scheduledAt ?? _initialDate,
+       quarterDurationMinutes =
+           quarterDurationMinutes ?? format.defaultQuarterMinutes;
   final SetupWizardStatus status;
   final int currentStep;
 
@@ -43,13 +50,19 @@ class SetupWizardState extends Equatable {
   final List<Team> teams;
   final DateTime scheduledAt;
   final GameFormat format;
+  final TrackingMode trackingMode;
+
+  // Step 2: Teams
+  final bool trackBothTeams;
 
   // Step 2: Lineup
   final Map<NetballPosition, Player?> lineup;
+  final Map<NetballPosition, Player?> opponentLineup;
 
   // Step 3: Settings
   final bool ourFirstCentrePass;
   final bool isSuperShot;
+  final int quarterDurationMinutes;
 
   final String? errorMessage;
   final int? createdGameId;
@@ -73,9 +86,13 @@ class SetupWizardState extends Equatable {
     List<Team>? teams,
     DateTime? scheduledAt,
     GameFormat? format,
+    TrackingMode? trackingMode,
+    bool? trackBothTeams,
     Map<NetballPosition, Player?>? lineup,
+    Map<NetballPosition, Player?>? opponentLineup,
     bool? ourFirstCentrePass,
     bool? isSuperShot,
+    int? quarterDurationMinutes,
     String? errorMessage,
     int? createdGameId,
   }) {
@@ -93,9 +110,14 @@ class SetupWizardState extends Equatable {
       teams: teams ?? this.teams,
       scheduledAt: scheduledAt ?? this.scheduledAt,
       format: format ?? this.format,
+      trackingMode: trackingMode ?? this.trackingMode,
+      trackBothTeams: trackBothTeams ?? this.trackBothTeams,
       lineup: lineup ?? this.lineup,
+      opponentLineup: opponentLineup ?? this.opponentLineup,
       ourFirstCentrePass: ourFirstCentrePass ?? this.ourFirstCentrePass,
       isSuperShot: isSuperShot ?? this.isSuperShot,
+      quarterDurationMinutes:
+          quarterDurationMinutes ?? this.quarterDurationMinutes,
       errorMessage: errorMessage ?? this.errorMessage,
       createdGameId: createdGameId ?? this.createdGameId,
     );
@@ -107,10 +129,25 @@ class SetupWizardState extends Equatable {
 
   bool get isLineupValid {
     final requiredPositions = format.positions;
-    return requiredPositions.every((pos) => lineup[pos] != null);
+    final homeOk = requiredPositions.every((pos) => lineup[pos] != null);
+    if (!trackBothTeams) return homeOk;
+    final opponentOk = requiredPositions.every(
+      (pos) => opponentLineup[pos] != null,
+    );
+    return homeOk && opponentOk;
   }
 
   bool get isAllValid => isMatchInfoValid && isTeamsValid && isLineupValid;
+
+  Color? get homeTeamColor =>
+      teams.where((t) => t.id == homeTeamId).firstOrNull?.color;
+  Color? get opponentTeamColor =>
+      teams.where((t) => t.id == opponentTeamId).firstOrNull?.color;
+
+  String? get homeTeamAvatar =>
+      teams.where((t) => t.id == homeTeamId).firstOrNull?.avatarUrl;
+  String? get opponentTeamAvatar =>
+      teams.where((t) => t.id == opponentTeamId).firstOrNull?.avatarUrl;
 
   @override
   List<Object?> get props => [
@@ -127,9 +164,13 @@ class SetupWizardState extends Equatable {
     teams,
     scheduledAt,
     format,
+    trackingMode,
+    trackBothTeams,
     lineup,
+    opponentLineup,
     ourFirstCentrePass,
     isSuperShot,
+    quarterDurationMinutes,
     errorMessage,
     createdGameId,
   ];

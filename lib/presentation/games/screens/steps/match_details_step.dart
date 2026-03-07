@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:netstats_pro/domain/entities/competition.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
+import 'package:netstats_pro/domain/entities/venue.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_bloc.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_event.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_state.dart';
+import 'package:netstats_pro/presentation/games/widgets/picker_bottom_sheet.dart';
 
 class MatchDetailsStep extends StatelessWidget {
   const MatchDetailsStep({super.key});
@@ -17,6 +20,23 @@ class MatchDetailsStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'TRACKING MODE',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                  color: Colors.blueGrey,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _TrackingModeSelector(
+                selectedMode: state.trackingMode,
+                onChanged: (mode) => context.read<SetupWizardBloc>().add(
+                  TrackingModeChanged(mode),
+                ),
+              ),
+              const SizedBox(height: 32),
               const Text(
                 'GAME FORMAT',
                 style: TextStyle(
@@ -43,34 +63,34 @@ class MatchDetailsStep extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<int>(
-                initialValue: state.competitionId,
-                decoration: InputDecoration(
-                  hintText: 'Select a Competition',
-                  filled: true,
-                  fillColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-                items: state.competitions.map((comp) {
-                  return DropdownMenuItem<int>(
-                    value: comp.id,
-                    child: Text(comp.name),
+              PickerField(
+                label: state.competitions
+                    .where((c) => c.id == state.competitionId)
+                    .map((c) => c.name)
+                    .firstOrNull,
+                placeholder: 'Select a competition',
+                icon: Icons.emoji_events_outlined,
+                onTap: () {
+                  final bloc = context.read<SetupWizardBloc>();
+                  showPickerSheet<Competition>(
+                    context: context,
+                    title: 'Competition',
+                    icon: Icons.emoji_events_outlined,
+                    items: state.competitions,
+                    selectedId: state.competitionId,
+                    getLabel: (c) => c.name,
+                    getId: (c) => c.id,
+                    onSelected: (id) => bloc.add(CompetitionSelected(id)),
+                    onQuickCreate: (name, _) =>
+                        bloc.add(QuickCreateCompetition(name)),
+                    emptyIcon: Icons.emoji_events_outlined,
+                    emptyTitle: 'No Competitions Yet',
+                    emptySubtitle: 'Create your first competition to continue.',
+                    createLabel: 'New Competition',
                   );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    context.read<SetupWizardBloc>().add(
-                      CompetitionSelected(val),
-                    );
-                  }
                 },
               ),
+
               const SizedBox(height: 20),
               const Text(
                 'VENUE',
@@ -82,32 +102,34 @@ class MatchDetailsStep extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<int>(
-                initialValue: state.venueId,
-                decoration: InputDecoration(
-                  hintText: 'Select a Venue',
-                  filled: true,
-                  fillColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-                items: state.venues.map((venue) {
-                  return DropdownMenuItem<int>(
-                    value: venue.id,
-                    child: Text(venue.name),
+              PickerField(
+                label: state.venues
+                    .where((v) => v.id == state.venueId)
+                    .map((v) => v.name)
+                    .firstOrNull,
+                placeholder: 'Select a venue',
+                icon: Icons.location_on_outlined,
+                onTap: () {
+                  final bloc = context.read<SetupWizardBloc>();
+                  showPickerSheet<Venue>(
+                    context: context,
+                    title: 'Venue',
+                    icon: Icons.location_on_outlined,
+                    items: state.venues,
+                    selectedId: state.venueId,
+                    getLabel: (v) => v.name,
+                    getId: (v) => v.id,
+                    onSelected: (id) => bloc.add(VenueSelected(id)),
+                    onQuickCreate: (name, _) =>
+                        bloc.add(QuickCreateVenue(name)),
+                    emptyIcon: Icons.location_on_outlined,
+                    emptyTitle: 'No Venues Yet',
+                    emptySubtitle: 'Create your first venue to continue.',
+                    createLabel: 'New Venue',
                   );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    context.read<SetupWizardBloc>().add(VenueSelected(val));
-                  }
                 },
               ),
+
               const SizedBox(height: 20),
               _DateTimePicker(
                 label: 'SCHEDULED TIME',
@@ -120,6 +142,110 @@ class MatchDetailsStep extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _TrackingModeSelector extends StatelessWidget {
+  const _TrackingModeSelector({
+    required this.selectedMode,
+    required this.onChanged,
+  });
+  final TrackingMode selectedMode;
+  final ValueChanged<TrackingMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isFullStats = selectedMode == TrackingMode.fullStatistics;
+
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Stack(
+        children: [
+          // Background labels
+          Row(
+            children: TrackingMode.values.map((mode) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    mode.displayName.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          // Animated Pill
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutBack,
+            alignment: isFullStats
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        isFullStats ? Icons.analytics : Icons.scoreboard,
+                        color: cs.onPrimary,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        selectedMode.displayName.toUpperCase(),
+                        style: TextStyle(
+                          color: cs.onPrimary,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Clickable overlay
+          Row(
+            children: TrackingMode.values.map((mode) {
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => onChanged(mode),
+                  behavior: HitTestBehavior.opaque,
+                  child: const SizedBox.expand(),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 }

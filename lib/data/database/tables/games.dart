@@ -17,6 +17,8 @@ class Games extends Table {
   // Stored as enum name
   TextColumn get format => text()();
   TextColumn get status => text()();
+  TextColumn get trackingMode =>
+      text().withDefault(const Constant('fullStatistics'))();
 
   BoolColumn get ourFirstCentrePass =>
       boolean().withDefault(const Constant(true))();
@@ -25,6 +27,8 @@ class Games extends Table {
 
   IntColumn get homeScore => integer().nullable()();
   IntColumn get awayScore => integer().nullable()();
+  IntColumn get quarterDurationMinutes =>
+      integer().withDefault(const Constant(15))();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

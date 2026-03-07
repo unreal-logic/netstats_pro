@@ -41,7 +41,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                'Creates 5 teams and 12 players each',
+                'Creates 5 teams, 12 players each, venues, and competitions',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onErrorContainer,
                 ),

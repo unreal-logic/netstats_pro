@@ -1,21 +1,75 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:netstats_pro/domain/entities/competition.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
 import 'package:netstats_pro/domain/entities/team.dart';
+import 'package:netstats_pro/domain/entities/venue.dart';
+import 'package:netstats_pro/domain/repositories/competition_repository.dart';
 import 'package:netstats_pro/domain/repositories/player_repository.dart';
 import 'package:netstats_pro/domain/repositories/team_repository.dart';
+import 'package:netstats_pro/domain/repositories/venue_repository.dart';
 
 class DemoDataService {
   DemoDataService({
     required this.teamRepository,
     required this.playerRepository,
+    required this.competitionRepository,
+    required this.venueRepository,
   });
 
   final TeamRepository teamRepository;
   final PlayerRepository playerRepository;
+  final CompetitionRepository competitionRepository;
+  final VenueRepository venueRepository;
 
   Future<void> generateDemoData() async {
     final random = Random();
+
+    await _generateVenues(random);
+    await _generateCompetitions(random);
+    await _generateTeamsAndPlayers(random);
+  }
+
+  Future<void> _generateVenues(Random random) async {
+    final venueNames = [
+      'City Arena',
+      'Sports Complex North',
+      'Riverside Stadium',
+      'East Side Courts',
+      'Central Netball Centre',
+    ];
+
+    for (final name in venueNames) {
+      final venue = Venue(
+        id: 0,
+        name: name,
+        createdAt: DateTime.now(),
+        indoor: random.nextBool(),
+      );
+      await venueRepository.saveVenue(venue);
+    }
+  }
+
+  Future<void> _generateCompetitions(Random random) async {
+    final competitionNames = [
+      'Winter Premiership 2026',
+      'Summer Social League',
+      'Junior Development Cup',
+      'State Championships',
+    ];
+
+    for (final name in competitionNames) {
+      final competition = Competition(
+        id: 0,
+        name: name,
+        createdAt: DateTime.now(),
+        seasonYear: 2026,
+      );
+      await competitionRepository.saveCompetition(competition);
+    }
+  }
+
+  Future<void> _generateTeamsAndPlayers(Random random) async {
     final teamNames = [
       'Vipers',
       'Thunder',

@@ -7,12 +7,14 @@ class Team extends Equatable {
     required this.name,
     required this.createdAt,
     this.color,
+    this.avatarUrl,
   });
   final int id;
   final String name;
   final Color? color;
+  final String? avatarUrl;
   final DateTime createdAt;
 
   @override
-  List<Object?> get props => [id, name, color, createdAt];
+  List<Object?> get props => [id, name, color, avatarUrl, createdAt];
 }
