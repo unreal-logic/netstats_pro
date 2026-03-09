@@ -141,7 +141,7 @@ class SetupWizardState extends Equatable {
     );
   }
 
-  bool get isMatchInfoValid => competitionId != null && venueId != null;
+  bool get isMatchInfoValid => competitionId != null;
 
   bool get isTeamsValid => opponentName.isNotEmpty && homeTeamName.isNotEmpty;
 

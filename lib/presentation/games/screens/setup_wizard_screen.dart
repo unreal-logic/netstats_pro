@@ -130,7 +130,7 @@ class SetupWizardView extends StatelessWidget {
                     if (state.currentStep == 0 && !state.isMatchInfoValid) {
                       _showError(
                         context,
-                        'Please select competition and venue',
+                        'Please select competition',
                       );
                       return;
                     }

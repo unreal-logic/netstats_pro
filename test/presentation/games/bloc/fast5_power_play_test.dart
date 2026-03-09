@@ -76,7 +76,6 @@ void main() {
     venueName: 'Netball Centre',
     scheduledAt: DateTime.now(),
     format: GameFormat.fiveAside,
-    fast5PowerPlayMode: Fast5PowerPlayMode.contested,
     status: GameStatus.inProgress,
     ourFirstCentrePass: true,
     createdAt: DateTime.now(),
@@ -108,8 +107,7 @@ void main() {
         remainingTime: const Duration(seconds: 80), // Within last 90s
         isSpecialScoringActive: true,
       ),
-      act: (bloc) =>
-          bloc.add(const LogEvent(type: MatchEventType.goal, isHomeTeam: true)),
+      act: (bloc) => bloc.add(const LogEvent(type: MatchEventType.goal)),
       expect: () => [
         predicate<LiveMatchState>((state) => state.scoreHome == 2),
       ],
@@ -122,10 +120,8 @@ void main() {
         status: LiveMatchStatus.active,
         game: fast5ContestedGame,
         remainingTime: const Duration(minutes: 2), // Outside last 90s
-        isSpecialScoringActive: false,
       ),
-      act: (bloc) =>
-          bloc.add(const LogEvent(type: MatchEventType.goal, isHomeTeam: true)),
+      act: (bloc) => bloc.add(const LogEvent(type: MatchEventType.goal)),
       expect: () => [
         predicate<LiveMatchState>((state) => state.scoreHome == 1),
       ],
@@ -142,7 +138,7 @@ void main() {
       ),
       act: (bloc) {
         bloc.add(const ToggleTeamPowerPlay(isHomeTeam: true));
-        bloc.add(const LogEvent(type: MatchEventType.goal, isHomeTeam: true));
+        bloc.add(const LogEvent(type: MatchEventType.goal));
       },
       expect: () => [
         predicate<LiveMatchState>((state) => state.isHomePowerPlayActive),
@@ -174,7 +170,6 @@ void main() {
         game: fast5NominatedGame,
         isHomePowerPlayActive: true,
         isAwayPowerPlayActive: true,
-        currentQuarter: 1,
       ),
       act: (bloc) => bloc.add(const ChangeQuarter(2)),
       expect: () => [

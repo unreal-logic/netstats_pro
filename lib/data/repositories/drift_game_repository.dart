@@ -18,7 +18,7 @@ class DriftGameRepository implements GameRepository {
           GamesCompanion.insert(
             opponentName: game.opponentName,
             competitionName: game.competitionName,
-            venueName: game.venueName,
+            venueName: Value(game.venueName),
             competitionId: Value(game.competitionId),
             venueId: Value(game.venueId),
             scheduledAt: game.scheduledAt,
@@ -70,6 +70,17 @@ class DriftGameRepository implements GameRepository {
     )..where((t) => t.id.equals(id))).getSingleOrNull();
     if (result == null) return null;
     return _mapToEntity(result);
+  }
+
+  @override
+  Future<int?> getLastUsedCompetitionId() async {
+    final query = _db.select(_db.games)
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+      ])
+      ..limit(1);
+    final lastGame = await query.getSingleOrNull();
+    return lastGame?.competitionId;
   }
 
   @override

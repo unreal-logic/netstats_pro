@@ -442,7 +442,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                       context,
                       icon: Icons.location_on_rounded,
                       label: 'Venue',
-                      value: game.venueName.toUpperCase(),
+                      value: game.venueName?.toUpperCase() ?? 'NONE',
                     ),
                     const Divider(height: 1),
                     _buildSummaryRow(

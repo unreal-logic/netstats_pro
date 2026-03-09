@@ -6,6 +6,7 @@ abstract class GameRepository {
   Future<Game?> getGameById(int id);
   Stream<List<Game>> watchAllGames();
 
+  Future<int?> getLastUsedCompetitionId();
   Future<int> saveLineup(MatchLineup lineup);
   Future<MatchLineup?> getLineupForGame(int gameId);
 }

@@ -36,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -152,6 +152,21 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(
             games,
             (games as dynamic).totalQuarters as GeneratedColumn<int>,
+          );
+        }
+      },
+      beforeOpen: (details) async {
+        // Seed default "Exhibition Match" competition if it doesn't exist
+        final exhibitionMatch = await (select(
+          competitions,
+        )..where((c) => c.name.equals('Exhibition Match'))).getSingleOrNull();
+
+        if (exhibitionMatch == null) {
+          await into(competitions).insert(
+            CompetitionsCompanion.insert(
+              name: 'Exhibition Match',
+              createdAt: Value(DateTime.now()),
+            ),
           );
         }
       },

@@ -8,7 +8,7 @@ class Games extends Table {
       .withDefault(const Constant('OUR TEAM'))();
   TextColumn get opponentName => text().withLength(min: 1, max: 100)();
   TextColumn get competitionName => text().withLength(min: 1, max: 100)();
-  TextColumn get venueName => text().withLength(min: 1, max: 100)();
+  TextColumn get venueName => text().withLength(min: 0, max: 100).nullable()();
   DateTimeColumn get scheduledAt => dateTime()();
 
   IntColumn get competitionId => integer().nullable()();

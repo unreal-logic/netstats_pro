@@ -77,12 +77,12 @@ class Game extends Equatable {
     required this.id,
     required this.opponentName,
     required this.competitionName,
-    required this.venueName,
     required this.scheduledAt,
     required this.format,
     required this.status,
     required this.ourFirstCentrePass,
     required this.createdAt,
+    this.venueName,
     this.trackingMode = TrackingMode.fullStatistics,
     this.quarterDurationMinutes = 15,
     this.totalQuarters = 4,
@@ -104,7 +104,7 @@ class Game extends Equatable {
   final String homeTeamName;
   final String opponentName;
   final String competitionName;
-  final String venueName;
+  final String? venueName;
   final int? competitionId;
   final int? venueId;
   final DateTime scheduledAt;

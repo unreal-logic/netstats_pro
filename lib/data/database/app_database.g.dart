@@ -997,13 +997,13 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
   late final GeneratedColumn<String> venueName = GeneratedColumn<String>(
     'venue_name',
     aliasedName,
-    false,
+    true,
     additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
+      minTextLength: 0,
       maxTextLength: 100,
     ),
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _scheduledAtMeta = const VerificationMeta(
     'scheduledAt',
@@ -1285,8 +1285,6 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
         _venueNameMeta,
         venueName.isAcceptableOrUnknown(data['venue_name']!, _venueNameMeta),
       );
-    } else if (isInserting) {
-      context.missing(_venueNameMeta);
     }
     if (data.containsKey('scheduled_at')) {
       context.handle(
@@ -1466,7 +1464,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameEntry> {
       venueName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}venue_name'],
-      )!,
+      ),
       scheduledAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}scheduled_at'],
@@ -1553,7 +1551,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
   final String homeTeamName;
   final String opponentName;
   final String competitionName;
-  final String venueName;
+  final String? venueName;
   final DateTime scheduledAt;
   final int? competitionId;
   final int? venueId;
@@ -1577,7 +1575,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     required this.homeTeamName,
     required this.opponentName,
     required this.competitionName,
-    required this.venueName,
+    this.venueName,
     required this.scheduledAt,
     this.competitionId,
     this.venueId,
@@ -1604,7 +1602,9 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     map['home_team_name'] = Variable<String>(homeTeamName);
     map['opponent_name'] = Variable<String>(opponentName);
     map['competition_name'] = Variable<String>(competitionName);
-    map['venue_name'] = Variable<String>(venueName);
+    if (!nullToAbsent || venueName != null) {
+      map['venue_name'] = Variable<String>(venueName);
+    }
     map['scheduled_at'] = Variable<DateTime>(scheduledAt);
     if (!nullToAbsent || competitionId != null) {
       map['competition_id'] = Variable<int>(competitionId);
@@ -1648,7 +1648,9 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       homeTeamName: Value(homeTeamName),
       opponentName: Value(opponentName),
       competitionName: Value(competitionName),
-      venueName: Value(venueName),
+      venueName: venueName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(venueName),
       scheduledAt: Value(scheduledAt),
       competitionId: competitionId == null && nullToAbsent
           ? const Value.absent()
@@ -1696,7 +1698,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       homeTeamName: serializer.fromJson<String>(json['homeTeamName']),
       opponentName: serializer.fromJson<String>(json['opponentName']),
       competitionName: serializer.fromJson<String>(json['competitionName']),
-      venueName: serializer.fromJson<String>(json['venueName']),
+      venueName: serializer.fromJson<String?>(json['venueName']),
       scheduledAt: serializer.fromJson<DateTime>(json['scheduledAt']),
       competitionId: serializer.fromJson<int?>(json['competitionId']),
       venueId: serializer.fromJson<int?>(json['venueId']),
@@ -1733,7 +1735,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
       'homeTeamName': serializer.toJson<String>(homeTeamName),
       'opponentName': serializer.toJson<String>(opponentName),
       'competitionName': serializer.toJson<String>(competitionName),
-      'venueName': serializer.toJson<String>(venueName),
+      'venueName': serializer.toJson<String?>(venueName),
       'scheduledAt': serializer.toJson<DateTime>(scheduledAt),
       'competitionId': serializer.toJson<int?>(competitionId),
       'venueId': serializer.toJson<int?>(venueId),
@@ -1760,7 +1762,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     String? homeTeamName,
     String? opponentName,
     String? competitionName,
-    String? venueName,
+    Value<String?> venueName = const Value.absent(),
     DateTime? scheduledAt,
     Value<int?> competitionId = const Value.absent(),
     Value<int?> venueId = const Value.absent(),
@@ -1784,7 +1786,7 @@ class GameEntry extends DataClass implements Insertable<GameEntry> {
     homeTeamName: homeTeamName ?? this.homeTeamName,
     opponentName: opponentName ?? this.opponentName,
     competitionName: competitionName ?? this.competitionName,
-    venueName: venueName ?? this.venueName,
+    venueName: venueName.present ? venueName.value : this.venueName,
     scheduledAt: scheduledAt ?? this.scheduledAt,
     competitionId: competitionId.present
         ? competitionId.value
@@ -1961,7 +1963,7 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
   final Value<String> homeTeamName;
   final Value<String> opponentName;
   final Value<String> competitionName;
-  final Value<String> venueName;
+  final Value<String?> venueName;
   final Value<DateTime> scheduledAt;
   final Value<int?> competitionId;
   final Value<int?> venueId;
@@ -2010,7 +2012,7 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     this.homeTeamName = const Value.absent(),
     required String opponentName,
     required String competitionName,
-    required String venueName,
+    this.venueName = const Value.absent(),
     required DateTime scheduledAt,
     this.competitionId = const Value.absent(),
     this.venueId = const Value.absent(),
@@ -2031,7 +2033,6 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     this.createdAt = const Value.absent(),
   }) : opponentName = Value(opponentName),
        competitionName = Value(competitionName),
-       venueName = Value(venueName),
        scheduledAt = Value(scheduledAt),
        format = Value(format),
        status = Value(status);
@@ -2097,7 +2098,7 @@ class GamesCompanion extends UpdateCompanion<GameEntry> {
     Value<String>? homeTeamName,
     Value<String>? opponentName,
     Value<String>? competitionName,
-    Value<String>? venueName,
+    Value<String?>? venueName,
     Value<DateTime>? scheduledAt,
     Value<int?>? competitionId,
     Value<int?>? venueId,
@@ -4884,7 +4885,7 @@ typedef $$GamesTableCreateCompanionBuilder =
       Value<String> homeTeamName,
       required String opponentName,
       required String competitionName,
-      required String venueName,
+      Value<String?> venueName,
       required DateTime scheduledAt,
       Value<int?> competitionId,
       Value<int?> venueId,
@@ -4910,7 +4911,7 @@ typedef $$GamesTableUpdateCompanionBuilder =
       Value<String> homeTeamName,
       Value<String> opponentName,
       Value<String> competitionName,
-      Value<String> venueName,
+      Value<String?> venueName,
       Value<DateTime> scheduledAt,
       Value<int?> competitionId,
       Value<int?> venueId,
@@ -5462,7 +5463,7 @@ class $$GamesTableTableManager
                 Value<String> homeTeamName = const Value.absent(),
                 Value<String> opponentName = const Value.absent(),
                 Value<String> competitionName = const Value.absent(),
-                Value<String> venueName = const Value.absent(),
+                Value<String?> venueName = const Value.absent(),
                 Value<DateTime> scheduledAt = const Value.absent(),
                 Value<int?> competitionId = const Value.absent(),
                 Value<int?> venueId = const Value.absent(),
@@ -5512,7 +5513,7 @@ class $$GamesTableTableManager
                 Value<String> homeTeamName = const Value.absent(),
                 required String opponentName,
                 required String competitionName,
-                required String venueName,
+                Value<String?> venueName = const Value.absent(),
                 required DateTime scheduledAt,
                 Value<int?> competitionId = const Value.absent(),
                 Value<int?> venueId = const Value.absent(),

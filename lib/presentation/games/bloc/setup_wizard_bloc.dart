@@ -62,6 +62,8 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
     LoadSetupData event,
     Emitter<SetupWizardState> emit,
   ) async {
+    final lastUsedCompId = await _gameRepository.getLastUsedCompetitionId();
+
     await emit.forEach(
       CombineLatestStream.combine3(
         _competitionRepository.watchCompetitions(),
@@ -70,10 +72,29 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
         (comps, venues, teams) => (comps, venues, teams),
       ),
       onData: (data) {
+        final comps = data.$1;
+        int? compId = state.competitionId;
+
+        // Auto-select competition if no competition is currently selected
+        if (compId == null && comps.isNotEmpty) {
+          if (lastUsedCompId != null &&
+              comps.any((c) => c.id == lastUsedCompId)) {
+            compId = lastUsedCompId;
+          } else {
+            // Fall back to "Exhibition Match"
+            final exhibition = comps.firstWhere(
+              (c) => c.name == 'Exhibition Match',
+              orElse: () => comps.first,
+            );
+            compId = exhibition.id;
+          }
+        }
+
         return state.copyWith(
-          competitions: data.$1,
+          competitions: comps,
           venues: data.$2,
           teams: data.$3,
+          competitionId: compId,
         );
       },
       onError: (e, stack) => state.copyWith(
@@ -458,12 +479,10 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
               .firstOrNull ??
           'Unknown Competition';
 
-      final venName =
-          state.venues
-              .where((v) => v.id == state.venueId)
-              .map((v) => v.name)
-              .firstOrNull ??
-          'Unknown Venue';
+      final venName = state.venues
+          .where((v) => v.id == state.venueId)
+          .map((v) => v.name)
+          .firstOrNull;
 
       final game = Game(
         id: 0,

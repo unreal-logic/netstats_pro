@@ -256,7 +256,7 @@ class GameSettingsStep extends StatelessWidget {
                     teamName: state.homeTeamName,
                     teamColor: state.homeTeamColor,
                     selectedQuarter: state.homePowerPlayQuarter,
-                    onChanged: (int? q) => context.read<SetupWizardBloc>().add(
+                    onChanged: (q) => context.read<SetupWizardBloc>().add(
                       HomePowerPlayQuarterChanged(q),
                     ),
                     disabledQuarter: state.awayPowerPlayQuarter,
@@ -267,7 +267,7 @@ class GameSettingsStep extends StatelessWidget {
                     teamName: state.opponentName,
                     teamColor: state.opponentTeamColor,
                     selectedQuarter: state.awayPowerPlayQuarter,
-                    onChanged: (int? q) => context.read<SetupWizardBloc>().add(
+                    onChanged: (q) => context.read<SetupWizardBloc>().add(
                       AwayPowerPlayQuarterChanged(q),
                     ),
                     disabledQuarter: state.homePowerPlayQuarter,

@@ -110,7 +110,6 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
           BoxShadow(
             color: cs.primary.withValues(alpha: 0.05),
             blurRadius: 40,
-            offset: const Offset(0, 0),
             spreadRadius: 2,
           ),
         ],
@@ -321,7 +320,6 @@ class _TeamZone extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Avatar & Power Play Toggle
         _TeamAvatar(color: color, name: name),
@@ -367,13 +365,13 @@ class _AnimatedScore extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
-      transitionBuilder: (Widget child, Animation<double> animation) {
+      transitionBuilder: (child, animation) {
         return FadeTransition(
           opacity: animation,
           child: SlideTransition(
             position:
                 Tween<Offset>(
-                  begin: const Offset(0.0, 0.2),
+                  begin: const Offset(0, 0.2),
                   end: Offset.zero,
                 ).animate(
                   CurvedAnimation(

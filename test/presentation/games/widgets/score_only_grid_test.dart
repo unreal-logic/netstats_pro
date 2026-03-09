@@ -49,7 +49,7 @@ void main() {
 
       // Verify tinted background for first addition button
       final addIcons = find.byIcon(Icons.add);
-      final Material material = tester.widget<Material>(
+      final material = tester.widget<Material>(
         find
             .ancestor(of: addIcons.first, matching: find.byType(Material))
             .first,
@@ -84,7 +84,6 @@ void main() {
             home: Scaffold(
               body: ScoreOnlyGrid(
                 game: game,
-                isSpecialScoringActive: false,
                 onStatSelected: (_, {required isHome}) {},
                 homeColor: Colors.blue,
                 awayColor: Colors.red,
