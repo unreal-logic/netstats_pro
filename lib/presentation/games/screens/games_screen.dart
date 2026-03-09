@@ -19,7 +19,7 @@ class GamesScreen extends StatelessWidget {
       create: (context) => sl<GamesBloc>()..add(const LoadGames()),
       child: Scaffold(
         appBar: const PremiumAppBar(
-          title: 'GAMES',
+          title: 'MATCHES',
         ),
         body: BlocBuilder<GamesBloc, GamesState>(
           builder: (context, state) {
@@ -45,7 +45,7 @@ class GamesScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     FilledButton.icon(
-                      onPressed: () => context.go('/games/setup'),
+                      onPressed: () => context.go('/match/setup'),
                       icon: const Icon(Icons.add),
                       label: const Text('START YOUR FIRST MATCH'),
                     ),
@@ -86,9 +86,9 @@ class GamesScreen extends StatelessWidget {
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       if (game.status == GameStatus.completed) {
-                        unawaited(context.push('/games/summary/${game.id}'));
+                        unawaited(context.push('/match/summary/${game.id}'));
                       } else {
-                        unawaited(context.push('/games/live/${game.id}'));
+                        unawaited(context.push('/match/live/${game.id}'));
                       }
                     },
                   ),
@@ -98,7 +98,7 @@ class GamesScreen extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => context.go('/games/setup'),
+          onPressed: () => context.go('/match/setup'),
           label: const Text('NEW MATCH'),
           icon: const Icon(Icons.add),
         ),

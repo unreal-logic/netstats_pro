@@ -56,7 +56,7 @@ class AppShell extends StatelessWidget {
                 NavigationDestination(
                   icon: Icon(Icons.sports_score_outlined),
                   selectedIcon: Icon(Icons.sports_score),
-                  label: 'GAMES',
+                  label: 'MATCHES',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.groups_outlined),
@@ -89,7 +89,7 @@ class AppShell extends StatelessWidget {
                   NavigationRailDestination(
                     icon: Icon(Icons.sports_score_outlined),
                     selectedIcon: Icon(Icons.sports_score),
-                    label: Text('GAMES'),
+                    label: Text('MATCHES'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.groups_outlined),

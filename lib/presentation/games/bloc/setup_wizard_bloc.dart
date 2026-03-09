@@ -46,7 +46,10 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
     on<TrackBothTeamsToggled>(_onTrackBothTeamsToggled);
     on<OpponentPositionAssigned>(_onOpponentPositionAssigned);
     on<QuickCreatePlayer>(_onQuickCreatePlayer);
+    on<Fast5PowerPlayModeChanged>(_onFast5PowerPlayModeChanged);
     on<QuarterDurationChanged>(_onQuarterDurationChanged);
+    on<HomePowerPlayQuarterChanged>(_onHomePowerPlayQuarterChanged);
+    on<AwayPowerPlayQuarterChanged>(_onAwayPowerPlayQuarterChanged);
     on<SetupSubmitted>(_onSetupSubmitted);
   }
   final GameRepository _gameRepository;
@@ -125,8 +128,15 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
     FormatChanged event,
     Emitter<SetupWizardState> emit,
   ) {
-    // Reset lineup if format changes as positions differ
-    emit(state.copyWith(format: event.format, lineup: {}));
+    // Reset lineups if format changes as positions differ
+    emit(
+      state.copyWith(
+        format: event.format,
+        lineup: {},
+        opponentLineup: {},
+        quarterDurationMinutes: event.format.defaultQuarterMinutes,
+      ),
+    );
   }
 
   void _onTrackingModeChanged(
@@ -308,11 +318,12 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
     final allPlayers = await _playerRepository.getAllPlayers();
     final requiredPositions = state.format.positions;
 
-    // Filter to the relevant team's roster if a team is selected
+    // Filter to the relevant team's roster
     final teamId = event.isHomeTeam ? state.homeTeamId : state.opponentTeamId;
-    final teamPlayers = teamId != null
-        ? allPlayers.where((p) => p.teamId == teamId).toList()
-        : allPlayers;
+
+    // IMPORTANT: If teamId is null, only use players who also have teamId == null
+    // This prevents picking up players from established teams for a one-off match.
+    final teamPlayers = allPlayers.where((p) => p.teamId == teamId).toList();
 
     final currentLineup = event.isHomeTeam
         ? Map<NetballPosition, Player?>.from(state.lineup)
@@ -323,11 +334,10 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
         .map((p) => p.id)
         .toSet();
 
+    // Pass 1: Assign based on preferred positions
     for (final pos in requiredPositions) {
-      // Skip if already manually assigned
       if (currentLineup[pos] != null) continue;
 
-      // Find an unassigned player who prefers this position
       try {
         final matchingPlayer = teamPlayers.firstWhere(
           (p) =>
@@ -337,7 +347,22 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
         currentLineup[pos] = matchingPlayer;
         assignedPlayerIds.add(matchingPlayer.id);
       } on Object catch (_) {
-        // No matching unassigned player found for this position, leave empty
+        // No preferred player for this slot
+      }
+    }
+
+    // Pass 2: Fill remaining slots with any available team players
+    for (final pos in requiredPositions) {
+      if (currentLineup[pos] != null) continue;
+
+      try {
+        final remainingPlayer = teamPlayers.firstWhere(
+          (p) => !assignedPlayerIds.contains(p.id),
+        );
+        currentLineup[pos] = remainingPlayer;
+        assignedPlayerIds.add(remainingPlayer.id);
+      } on Object catch (_) {
+        // No more players available
       }
     }
 
@@ -362,12 +387,51 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
     emit(state.copyWith(isSuperShot: event.isSuperShot));
   }
 
+  void _onFast5PowerPlayModeChanged(
+    Fast5PowerPlayModeChanged event,
+    Emitter<SetupWizardState> emit,
+  ) {
+    emit(state.copyWith(fast5PowerPlayMode: event.mode));
+  }
+
   void _onQuarterDurationChanged(
     QuarterDurationChanged event,
     Emitter<SetupWizardState> emit,
   ) {
     final clamped = event.minutes.clamp(1, 60);
     emit(state.copyWith(quarterDurationMinutes: clamped));
+  }
+
+  void _onHomePowerPlayQuarterChanged(
+    HomePowerPlayQuarterChanged event,
+    Emitter<SetupWizardState> emit,
+  ) {
+    if (event.quarter != null && event.quarter == state.awayPowerPlayQuarter) {
+      emit(
+        state.copyWith(
+          homePowerPlayQuarter: event.quarter,
+          clearAwayPowerPlayQuarter: true,
+        ),
+      );
+    } else {
+      emit(state.copyWith(homePowerPlayQuarter: event.quarter));
+    }
+  }
+
+  void _onAwayPowerPlayQuarterChanged(
+    AwayPowerPlayQuarterChanged event,
+    Emitter<SetupWizardState> emit,
+  ) {
+    if (event.quarter != null && event.quarter == state.homePowerPlayQuarter) {
+      emit(
+        state.copyWith(
+          awayPowerPlayQuarter: event.quarter,
+          clearHomePowerPlayQuarter: true,
+        ),
+      );
+    } else {
+      emit(state.copyWith(awayPowerPlayQuarter: event.quarter));
+    }
   }
 
   Future<void> _onSetupSubmitted(
@@ -408,6 +472,8 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
         venueName: venName,
         competitionId: state.competitionId,
         venueId: state.venueId,
+        homeTeamId: state.homeTeamId,
+        opponentTeamId: state.opponentTeamId,
         scheduledAt: state.scheduledAt,
         format: state.format,
         trackingMode: state.trackingMode,
@@ -415,24 +481,29 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
         homeTeamName: state.homeTeamName.isEmpty ? 'Home' : state.homeTeamName,
         ourFirstCentrePass: state.ourFirstCentrePass,
         isSuperShot: state.isSuperShot,
+        fast5PowerPlayMode: state.fast5PowerPlayMode,
+        homePowerPlayQuarter: state.homePowerPlayQuarter,
+        awayPowerPlayQuarter: state.awayPowerPlayQuarter,
         quarterDurationMinutes: state.quarterDurationMinutes,
         createdAt: DateTime.now(),
       );
 
       final gameId = await _gameRepository.createGame(game);
 
-      // Save Lineup
-      final positionMapping = state.lineup.map(
-        (pos, player) => MapEntry(pos, player!.id),
-      );
+      if (state.trackingMode != TrackingMode.scoreOnly) {
+        // Save Lineup
+        final positionMapping = state.lineup.map(
+          (pos, player) => MapEntry(pos, player!.id),
+        );
 
-      final lineup = MatchLineup(
-        id: 0,
-        gameId: gameId,
-        positionToPlayerId: positionMapping,
-      );
+        final lineup = MatchLineup(
+          id: 0,
+          gameId: gameId,
+          positionToPlayerId: positionMapping,
+        );
 
-      await _gameRepository.saveLineup(lineup);
+        await _gameRepository.saveLineup(lineup);
+      }
 
       emit(
         state.copyWith(

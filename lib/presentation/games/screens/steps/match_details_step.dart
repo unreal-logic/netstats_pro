@@ -160,11 +160,11 @@ class _TrackingModeSelector extends StatelessWidget {
     final isFullStats = selectedMode == TrackingMode.fullStatistics;
 
     return Container(
-      height: 56,
+      height: 58,
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
       ),
       padding: const EdgeInsets.all(4),
       child: Stack(
@@ -308,10 +308,12 @@ class _DateTimePicker extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline,
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -344,7 +346,7 @@ class _FormatSelector extends StatelessWidget {
         var subtitle = '';
         switch (format) {
           case GameFormat.sevenAside:
-            subtitle = 'Standard Match / Super Netball';
+            subtitle = 'Standard Match / Super Shot';
           case GameFormat.sixAside:
             subtitle = 'Indoor / WINA Rules';
           case GameFormat.fiveAside:

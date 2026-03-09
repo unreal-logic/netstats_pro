@@ -30,7 +30,7 @@ class DriftMatchEventRepository implements MatchEventRepository {
             type: event.type.name,
             playerId: Value(event.playerId),
             position: Value(event.position),
-            isPowerPlay: Value(event.isPowerPlay),
+            isSpecialScoring: Value(event.isSpecialScoring),
             isHomeTeam: Value(event.isHomeTeam),
           ),
         );
@@ -60,7 +60,7 @@ class DriftMatchEventRepository implements MatchEventRepository {
       type: entity.MatchEventType.values.firstWhere((e) => e.name == data.type),
       playerId: data.playerId,
       position: data.position,
-      isPowerPlay: data.isPowerPlay,
+      isSpecialScoring: data.isSpecialScoring,
       isHomeTeam: data.isHomeTeam,
     );
   }

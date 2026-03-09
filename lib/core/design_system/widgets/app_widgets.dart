@@ -77,7 +77,7 @@ class AppCard extends StatelessWidget {
 /// ```dart
 /// RadioTile(
 ///   title: '7 Aside',
-///   subtitle: 'Standard Match / Super Netball',
+///   subtitle: 'Standard Match / Super Shot',
 ///   badgeLabel: '7 Players',
 ///   isSelected: true,
 ///   onTap: () {},

@@ -88,9 +88,9 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   FilledButton.icon(
-                    onPressed: () => context.go('/games/setup'),
+                    onPressed: () => context.go('/match/setup'),
                     icon: const Icon(Icons.add),
-                    label: const Text('START NEW GAME'),
+                    label: const Text('START NEW MATCH'),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
                     ),

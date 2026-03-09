@@ -9,11 +9,13 @@ class PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.leading,
     this.showLogo = true,
+    this.bottom,
   });
   final String title;
   final List<Widget>? actions;
   final Widget? leading;
   final bool showLogo;
+  final PreferredSizeWidget? bottom;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ class PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
             scrolledUnderElevation: 0,
             centerTitle: false,
             leading: leading,
+            bottom: bottom,
             title: Row(
               children: [
                 if (showLogo) ...[
@@ -86,5 +89,7 @@ class PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(
+    kToolbarHeight + (bottom?.preferredSize.height ?? 0),
+  );
 }

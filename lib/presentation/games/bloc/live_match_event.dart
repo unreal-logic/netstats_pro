@@ -34,6 +34,14 @@ class LogEvent extends LiveMatchEvent {
 
 class TogglePowerPlay extends LiveMatchEvent {}
 
+class ToggleTeamPowerPlay extends LiveMatchEvent {
+  const ToggleTeamPowerPlay({required this.isHomeTeam});
+  final bool isHomeTeam;
+
+  @override
+  List<Object?> get props => [isHomeTeam];
+}
+
 class UpdateClock extends LiveMatchEvent {
   const UpdateClock(this.elapsed);
   final Duration elapsed;
@@ -54,6 +62,14 @@ class ChangeQuarter extends LiveMatchEvent {
 
   @override
   List<Object?> get props => [quarter];
+}
+
+class AddExtraQuarter extends LiveMatchEvent {
+  const AddExtraQuarter(this.duration);
+  final Duration duration;
+
+  @override
+  List<Object?> get props => [duration];
 }
 
 class UndoEvent extends LiveMatchEvent {}
@@ -82,3 +98,7 @@ class SelectPendingStat extends LiveMatchEvent {
 class ToggleActiveTeam extends LiveMatchEvent {}
 
 class TogglePossession extends LiveMatchEvent {}
+
+class ToggleTimer extends LiveMatchEvent {
+  const ToggleTimer();
+}

@@ -22,6 +22,7 @@ enum MatchEventType {
   substitution,
   quarterStart,
   quarterEnd,
+  adjustment,
 }
 
 class MatchEvent extends Equatable {
@@ -34,7 +35,7 @@ class MatchEvent extends Equatable {
     this.id,
     this.playerId,
     this.position,
-    this.isPowerPlay = false,
+    this.isSpecialScoring = false,
     this.isHomeTeam = true,
   });
   final int? id;
@@ -45,7 +46,7 @@ class MatchEvent extends Equatable {
   final MatchEventType type;
   final int? playerId;
   final String? position; // e.g. "GS", "A1"
-  final bool isPowerPlay;
+  final bool isSpecialScoring;
   final bool isHomeTeam;
 
   @override
@@ -58,7 +59,7 @@ class MatchEvent extends Equatable {
     type,
     playerId,
     position,
-    isPowerPlay,
+    isSpecialScoring,
     isHomeTeam,
   ];
 
@@ -71,7 +72,7 @@ class MatchEvent extends Equatable {
     MatchEventType? type,
     int? playerId,
     String? position,
-    bool? isPowerPlay,
+    bool? isSpecialScoring,
     bool? isHomeTeam,
   }) {
     return MatchEvent(
@@ -83,7 +84,7 @@ class MatchEvent extends Equatable {
       type: type ?? this.type,
       playerId: playerId ?? this.playerId,
       position: position ?? this.position,
-      isPowerPlay: isPowerPlay ?? this.isPowerPlay,
+      isSpecialScoring: isSpecialScoring ?? this.isSpecialScoring,
       isHomeTeam: isHomeTeam ?? this.isHomeTeam,
     );
   }

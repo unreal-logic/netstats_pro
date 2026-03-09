@@ -13,6 +13,8 @@ class Games extends Table {
 
   IntColumn get competitionId => integer().nullable()();
   IntColumn get venueId => integer().nullable()();
+  IntColumn get homeTeamId => integer().nullable()();
+  IntColumn get opponentTeamId => integer().nullable()();
 
   // Stored as enum name
   TextColumn get format => text()();
@@ -24,11 +26,16 @@ class Games extends Table {
       boolean().withDefault(const Constant(true))();
 
   BoolColumn get isSuperShot => boolean().withDefault(const Constant(false))();
+  TextColumn get fast5PowerPlayMode =>
+      text().withDefault(const Constant('contested'))();
+  IntColumn get homePowerPlayQuarter => integer().nullable()();
+  IntColumn get awayPowerPlayQuarter => integer().nullable()();
 
   IntColumn get homeScore => integer().nullable()();
   IntColumn get awayScore => integer().nullable()();
   IntColumn get quarterDurationMinutes =>
       integer().withDefault(const Constant(15))();
+  IntColumn get totalQuarters => integer().withDefault(const Constant(4))();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

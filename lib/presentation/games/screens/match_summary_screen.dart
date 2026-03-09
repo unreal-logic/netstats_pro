@@ -19,7 +19,7 @@ class MatchSummaryScreen extends StatelessWidget {
       create: (_) => sl<MatchSummaryBloc>()..add(LoadMatchSummary(gameId)),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('MATCH SUMMARY'),
+          title: const Text('MATCH DETAILS'),
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.close),
@@ -106,7 +106,7 @@ class MatchSummaryScreen extends StatelessWidget {
                         ),
                       ),
                       onPressed: () => context.go('/games'),
-                      child: const Text('BACK TO GAMES'),
+                      child: const Text('BACK TO MATCHES'),
                     ),
                   ),
                 ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:netstats_pro/core/theme/colors.dart';
+import 'package:netstats_pro/core/design_system/design_system.dart';
 import 'package:netstats_pro/domain/entities/match_event.dart';
 
 class ErgonomicStatsGrid extends StatelessWidget {
@@ -16,143 +16,232 @@ class ErgonomicStatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+        borderRadius: AppRadius.brXl,
+        border: Border.all(
+          color: Theme.of(
+            context,
+          ).colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Z-Pattern Row 1: Defenses
+          // Offensive Stats Row
           Row(
             children: [
               Expanded(
-                child: _buildZButton(
+                child: _buildErgoButton(
                   context,
-                  MatchEventType.intercept,
-                  'Intercept',
-                  Icons.back_hand,
-                  NetStatsColors.accentTeal,
+                  MatchEventType.goal,
+                  'Goal',
+                  Icons.sports_score,
+                  teamColor: activeTeamColor,
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.hGap8,
               Expanded(
-                child: _buildZButton(
-                  context,
-                  MatchEventType.deflection,
-                  'Deflect',
-                  Icons.touch_app,
-                  NetStatsColors.accentTeal,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Z-Pattern Row 2: Rebounds
-          Row(
-            children: [
-              Expanded(
-                child: _buildZButton(
-                  context,
-                  MatchEventType.offensiveRebound,
-                  'Off. Reb',
-                  Icons.arrow_upward,
-                  NetStatsColors.accentTeal,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildZButton(
-                  context,
-                  MatchEventType.defensiveRebound,
-                  'Def. Reb',
-                  Icons.arrow_upward,
-                  NetStatsColors.accentTeal,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Z-Pattern Row 3: Possession
-          Row(
-            children: [
-              Expanded(
-                child: _buildZButton(
+                child: _buildErgoButton(
                   context,
                   MatchEventType.assist,
                   'Assist',
                   Icons.handshake,
-                  NetStatsColors.accentTeal,
+                  teamColor: activeTeamColor,
                 ),
               ),
-              const SizedBox(width: 8),
+            ],
+          ),
+          AppSpacing.vGap8,
+          // Defensive Row
+          Row(
+            children: [
               Expanded(
-                child: _buildZButton(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.intercept,
+                  'Intercept',
+                  Icons.back_hand,
+                  teamColor: activeTeamColor,
+                ),
+              ),
+              AppSpacing.hGap8,
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.deflection,
+                  'Deflect',
+                  Icons.touch_app,
+                  teamColor: activeTeamColor,
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.vGap8,
+          Row(
+            children: [
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.offensiveRebound,
+                  'Off. Reb',
+                  Icons.arrow_upward,
+                  teamColor: activeTeamColor,
+                ),
+              ),
+              AppSpacing.hGap8,
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.defensiveRebound,
+                  'Def. Reb',
+                  Icons.arrow_upward,
+                  teamColor: activeTeamColor,
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.vGap8,
+          Row(
+            children: [
+              Expanded(
+                child: _buildErgoButton(
                   context,
                   MatchEventType.pickup,
                   'Pickup',
                   Icons.pan_tool_alt,
-                  NetStatsColors.accentTeal,
+                  teamColor: activeTeamColor,
+                ),
+              ),
+              AppSpacing.hGap8,
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.centerPass,
+                  'Centre',
+                  Icons.adjust,
+                  isNeutralStat: true,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          // Z-Pattern Row 4: Errors/Penalties
+          AppSpacing.vGap16,
+
+          // Errors / Penalties Section (Negative)
           Row(
             children: [
               Expanded(
-                child: _buildZButton(
+                child: _buildErgoButton(
                   context,
                   MatchEventType.miss,
                   'Miss',
                   Icons.close,
-                  Theme.of(context).colorScheme.error,
-                  isOutlined: true,
+                  isNegativeStat: true,
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.hGap8,
               Expanded(
-                child: _buildZButton(
+                child: _buildErgoButton(
                   context,
                   MatchEventType.turnover,
                   'Turnover',
                   Icons.sync_problem,
-                  Theme.of(context).colorScheme.error,
-                  isOutlined: true,
+                  isNegativeStat: true,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Dominant Thumb-Zone GOAL Button
+          AppSpacing.vGap8,
+          Row(
+            children: [
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.penaltyContact,
+                  'Contact',
+                  Icons.gavel,
+                  isNegativeStat: true,
+                ),
+              ),
+              AppSpacing.hGap8,
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.penaltyObstruction,
+                  'Obstruct',
+                  Icons.front_hand,
+                  isNegativeStat: true,
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.vGap8,
+          Row(
+            children: [
+              Expanded(
+                child: _buildErgoButton(
+                  context,
+                  MatchEventType.heldBall,
+                  'Held Ball',
+                  Icons.timer_off,
+                  isNegativeStat: true,
+                ),
+              ),
+              const Spacer(),
+            ],
+          ),
+
+          AppSpacing.vGap24,
+
+          // Dominant Thumb-Zone GOAL Button (Refined/Toned Down)
           SizedBox(
             width: double.infinity,
-            height: 120, // Massive height for thumb zone
-            child: FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor:
-                    isActivePlayerSelected && activeTeamColor != null
-                    ? activeTeamColor
-                    : NetStatsColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                elevation: 8,
-              ),
-              onPressed: () => onStatSelected(MatchEventType.goal),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.sports_basketball, size: 48, color: Colors.white),
-                  SizedBox(height: 4),
-                  Text(
-                    'GOAL',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 4,
-                      color: Colors.white,
-                    ),
+            height: 120,
+            child: AppCard(
+              onTap: () => onStatSelected(MatchEventType.goal),
+              borderRadius: AppRadius.brXxl,
+              padding: EdgeInsets.zero,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: AppRadius.brXxl,
+                  border: Border.all(
+                    color:
+                        activeTeamColor ??
+                        Theme.of(context).colorScheme.primary,
+                    width: 3,
                   ),
-                ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.sports_basketball,
+                      size: 40,
+                      color:
+                          activeTeamColor ??
+                          Theme.of(context).colorScheme.primary,
+                    ),
+                    AppSpacing.vGap4,
+                    Text(
+                      'GOAL',
+                      style: AppTypography.displaySmall.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4,
+                        fontSize: 32,
+                      ),
+                    ),
+                    Text(
+                      'Tap to record',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -161,55 +250,66 @@ class ErgonomicStatsGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildZButton(
+  Widget _buildErgoButton(
     BuildContext context,
     MatchEventType type,
     String label,
-    IconData icon,
-    Color color, {
-    bool isOutlined = false,
+    IconData icon, {
+    Color? teamColor,
+    bool isNegativeStat = false,
+    bool isNeutralStat = false,
   }) {
+    final cs = Theme.of(context).colorScheme;
+
+    // Determine accent color (border and icon)
+    final Color accentColor;
+    if (isNegativeStat) {
+      accentColor = AppColors.error;
+    } else if (isNeutralStat) {
+      accentColor = cs.outline;
+    } else {
+      accentColor = teamColor ?? cs.primary;
+    }
+
     return SizedBox(
-      height: 60,
-      child: isOutlined
-          ? OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: color, width: 2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              ),
-              onPressed: () => onStatSelected(type),
-              icon: Icon(icon, color: color, size: 20),
-              label: Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-            )
-          : FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: color.withValues(alpha: 0.15),
-                foregroundColor: color,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              ),
-              onPressed: () => onStatSelected(type),
-              icon: Icon(icon, size: 20),
-              label: Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
+      height: 64,
+      child: Material(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: AppRadius.brLg,
+        child: InkWell(
+          onTap: () => onStatSelected(type),
+          borderRadius: AppRadius.brLg,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: AppRadius.brLg,
+              border: Border.all(
+                color: accentColor.withValues(alpha: 0.5),
+                width: 1.5,
               ),
             ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 20, color: accentColor),
+                AppSpacing.hGap8,
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    style: AppTypography.labelSmall.copyWith(
+                      color: cs.onSurface,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

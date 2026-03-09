@@ -15,6 +15,7 @@ class MatchEvents extends Table {
   IntColumn get playerId => integer().nullable().references(Players, #id)();
   TextColumn get position => text().nullable()();
 
-  BoolColumn get isPowerPlay => boolean().withDefault(const Constant(false))();
+  BoolColumn get isSpecialScoring =>
+      boolean().withDefault(const Constant(false))();
   BoolColumn get isHomeTeam => boolean().withDefault(const Constant(true))();
 }

@@ -38,17 +38,20 @@ class HorizontalPlayerStrip extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? activeTeamColor
-                      : Theme.of(context).colorScheme.surfaceContainerHighest,
+                      : activeTeamColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(36), // Pill shape
-                  border: isSelected
-                      ? Border.all(color: Colors.white, width: 2)
-                      : Border.all(color: Colors.transparent, width: 2),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.white
+                        : activeTeamColor.withValues(alpha: 0.3),
+                    width: isSelected ? 2 : 1.5,
+                  ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: activeTeamColor.withValues(alpha: 0.5),
+                            color: activeTeamColor.withValues(alpha: 0.4),
                             blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            spreadRadius: 1,
                           ),
                         ]
                       : [],
@@ -60,25 +63,23 @@ class HorizontalPlayerStrip extends StatelessWidget {
                       player.position,
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w900,
+                        color: isSelected ? Colors.white : activeTeamColor,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
-                      player.name.split(' ').first, // First name only for strip
+                      player.name.split(' ').first.toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
                         color: isSelected
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : activeTeamColor.withValues(alpha: 0.7),
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],

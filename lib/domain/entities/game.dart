@@ -18,14 +18,14 @@ enum GameFormat {
     NetballPosition.l2,
     NetballPosition.d1,
     NetballPosition.d2,
-  ], 12),
+  ], 10),
   fiveAside('5 aside', 5, [
     NetballPosition.gs,
     NetballPosition.ga,
     NetballPosition.c,
     NetballPosition.gd,
     NetballPosition.gk,
-  ], 10)
+  ], 6)
   ;
 
   const GameFormat(
@@ -54,6 +54,22 @@ enum TrackingMode {
   final String description;
 }
 
+enum Fast5PowerPlayMode {
+  contested(
+    'Contested (Last 90s)',
+    'Both teams receive double points in the final 90s of every quarter.',
+  ),
+  nominated(
+    'Nominated (Team Choice)',
+    'Each team selects one quarter for their Power Play (points doubled for entire quarter).',
+  )
+  ;
+
+  const Fast5PowerPlayMode(this.displayName, this.description);
+  final String displayName;
+  final String description;
+}
+
 enum GameStatus { scheduled, inProgress, completed, cancelled }
 
 class Game extends Equatable {
@@ -69,14 +85,22 @@ class Game extends Equatable {
     required this.createdAt,
     this.trackingMode = TrackingMode.fullStatistics,
     this.quarterDurationMinutes = 15,
+    this.totalQuarters = 4,
     this.competitionId,
     this.venueId,
+    this.homeTeamId,
+    this.opponentTeamId,
     this.homeTeamName = 'OUR TEAM', // Default for now
     this.isSuperShot = false,
+    this.fast5PowerPlayMode = Fast5PowerPlayMode.contested,
+    this.homePowerPlayQuarter,
+    this.awayPowerPlayQuarter,
     this.homeScore,
     this.awayScore,
   });
   final int id;
+  final int? homeTeamId;
+  final int? opponentTeamId;
   final String homeTeamName;
   final String opponentName;
   final String competitionName;
@@ -89,7 +113,11 @@ class Game extends Equatable {
   final TrackingMode trackingMode;
   final bool ourFirstCentrePass;
   final bool isSuperShot;
+  final Fast5PowerPlayMode fast5PowerPlayMode;
+  final int? homePowerPlayQuarter;
+  final int? awayPowerPlayQuarter;
   final int quarterDurationMinutes;
+  final int totalQuarters;
   final int? homeScore;
   final int? awayScore;
   final DateTime createdAt;
@@ -97,6 +125,8 @@ class Game extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    homeTeamId,
+    opponentTeamId,
     homeTeamName,
     opponentName,
     competitionName,
@@ -109,7 +139,11 @@ class Game extends Equatable {
     trackingMode,
     ourFirstCentrePass,
     isSuperShot,
+    fast5PowerPlayMode,
+    homePowerPlayQuarter,
+    awayPowerPlayQuarter,
     quarterDurationMinutes,
+    totalQuarters,
     homeScore,
     awayScore,
     createdAt,
@@ -117,6 +151,8 @@ class Game extends Equatable {
 
   Game copyWith({
     int? id,
+    int? homeTeamId,
+    int? opponentTeamId,
     String? homeTeamName,
     String? opponentName,
     String? competitionName,
@@ -129,13 +165,19 @@ class Game extends Equatable {
     TrackingMode? trackingMode,
     bool? ourFirstCentrePass,
     bool? isSuperShot,
+    Fast5PowerPlayMode? fast5PowerPlayMode,
+    int? homePowerPlayQuarter,
+    int? awayPowerPlayQuarter,
     int? quarterDurationMinutes,
+    int? totalQuarters,
     int? homeScore,
     int? awayScore,
     DateTime? createdAt,
   }) {
     return Game(
       id: id ?? this.id,
+      homeTeamId: homeTeamId ?? this.homeTeamId,
+      opponentTeamId: opponentTeamId ?? this.opponentTeamId,
       homeTeamName: homeTeamName ?? this.homeTeamName,
       opponentName: opponentName ?? this.opponentName,
       competitionName: competitionName ?? this.competitionName,
@@ -148,8 +190,12 @@ class Game extends Equatable {
       trackingMode: trackingMode ?? this.trackingMode,
       ourFirstCentrePass: ourFirstCentrePass ?? this.ourFirstCentrePass,
       isSuperShot: isSuperShot ?? this.isSuperShot,
+      fast5PowerPlayMode: fast5PowerPlayMode ?? this.fast5PowerPlayMode,
+      homePowerPlayQuarter: homePowerPlayQuarter ?? this.homePowerPlayQuarter,
+      awayPowerPlayQuarter: awayPowerPlayQuarter ?? this.awayPowerPlayQuarter,
       quarterDurationMinutes:
           quarterDurationMinutes ?? this.quarterDurationMinutes,
+      totalQuarters: totalQuarters ?? this.totalQuarters,
       homeScore: homeScore ?? this.homeScore,
       awayScore: awayScore ?? this.awayScore,
       createdAt: createdAt ?? this.createdAt,

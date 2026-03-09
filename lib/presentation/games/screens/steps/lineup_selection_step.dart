@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:netstats_pro/core/design_system/widgets/buttons/app_button.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
 import 'package:netstats_pro/domain/repositories/player_repository.dart';
 import 'package:netstats_pro/injection_container.dart';
@@ -87,19 +89,15 @@ class _SingleTeamLineup extends StatelessWidget {
                   ],
                 ),
               ),
-              FilledButton.tonalIcon(
+              AppButton(
+                label: 'AUTO-ASSIGN',
                 onPressed: () => context.read<SetupWizardBloc>().add(
                   AutoAssignLineup(isHomeTeam: isHomeTeam),
                 ),
-                icon: const Icon(Icons.auto_awesome, size: 16),
-                label: const Text(
-                  'AUTO-ASSIGN',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+                variant: AppButtonVariant.secondary,
+                prefixIcon: Icons.auto_awesome,
+                size: AppButtonSize.sm,
+                isFullWidth: false,
               ),
             ],
           ),
@@ -468,13 +466,13 @@ class _PositionSlot extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: hasPlayer
-              ? (teamColor ?? cs.primary).withValues(alpha: 0.12)
-              : cs.surfaceContainerHighest.withValues(alpha: 0.3),
+              ? (teamColor ?? cs.primary).withValues(alpha: 0.08)
+              : cs.surfaceContainerHighest.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: hasPlayer
-                ? (teamColor ?? cs.primary).withValues(alpha: 0.45)
-                : cs.outline.withValues(alpha: 0.3),
+                ? (teamColor ?? cs.primary).withValues(alpha: 0.5)
+                : cs.outline.withValues(alpha: 0.2),
             width: hasPlayer ? 1.5 : 1,
           ),
         ),
@@ -857,18 +855,21 @@ class _PlayerPickerSheetState extends State<_PlayerPickerSheet> {
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: AppButton(
+                          label: 'Cancel',
                           onPressed: () =>
                               setState(() => _showCreateForm = false),
-                          child: const Text('Cancel'),
+                          variant: AppButtonVariant.outlined,
+                          size: AppButtonSize.lg,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: FilledButton.icon(
+                        child: AppButton(
+                          label: 'Save & Assign',
                           onPressed: () => _submitCreate(bloc),
-                          icon: const Icon(Icons.check, size: 18),
-                          label: const Text('Save & Assign'),
+                          prefixIcon: Icons.check,
+                          size: AppButtonSize.lg,
                         ),
                       ),
                     ],
@@ -1098,13 +1099,12 @@ class _PlayerPickerSheetState extends State<_PlayerPickerSheet> {
             // ── Add new player footer ────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: OutlinedButton.icon(
+              child: AppButton(
+                label: 'New Player',
                 onPressed: () => setState(() => _showCreateForm = true),
-                icon: const Icon(Icons.person_add_outlined, size: 18),
-                label: const Text('+ New Player'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44),
-                ),
+                variant: AppButtonVariant.outlined,
+                prefixIcon: Icons.person_add_outlined,
+                size: AppButtonSize.lg,
               ),
             ),
           ],

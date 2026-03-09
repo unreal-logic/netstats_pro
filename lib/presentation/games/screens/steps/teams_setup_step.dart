@@ -389,12 +389,12 @@ class _TeamSlot extends StatelessWidget {
         decoration: BoxDecoration(
           color: hasTeam
               ? teamColor.withValues(alpha: 0.08)
-              : cs.surfaceContainerHighest.withValues(alpha: 0.3),
+              : cs.surfaceContainerHighest.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: hasTeam
                 ? teamColor.withValues(alpha: 0.5)
-                : cs.outline.withValues(alpha: 0.3),
+                : cs.outline.withValues(alpha: 0.2),
             width: hasTeam ? 1.5 : 1,
           ),
         ),

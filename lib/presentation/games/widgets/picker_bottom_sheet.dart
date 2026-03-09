@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:netstats_pro/core/design_system/widgets/buttons/app_button.dart';
 
 // ─── Generic bottom-sheet picker helper ──────────────────────────────────────
 // Used by both MatchDetailsStep (Competition, Venue) and TeamsSetupStep.
@@ -354,13 +355,12 @@ class _PickerBottomSheetState<T> extends State<PickerBottomSheet<T>> {
             // Add new footer
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: OutlinedButton.icon(
+              child: AppButton(
+                label: 'Add ${widget.createLabel}',
                 onPressed: () => setState(() => _showCreateForm = true),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text('+ ${widget.createLabel}'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44),
-                ),
+                variant: AppButtonVariant.secondary,
+                prefixIcon: Icons.add,
+                size: AppButtonSize.lg,
               ),
             ),
           ],
@@ -458,20 +458,23 @@ class _PickerBottomSheetState<T> extends State<PickerBottomSheet<T>> {
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: AppButton(
+                          label: 'Cancel',
                           onPressed: () => setState(() {
                             _showCreateForm = false;
                             _createController.clear();
                           }),
-                          child: const Text('Cancel'),
+                          variant: AppButtonVariant.outlined,
+                          size: AppButtonSize.lg,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: FilledButton.icon(
+                        child: AppButton(
+                          label: 'Save',
                           onPressed: _submitCreate,
-                          icon: const Icon(Icons.check, size: 18),
-                          label: const Text('Save'),
+                          prefixIcon: Icons.check,
+                          size: AppButtonSize.lg,
                         ),
                       ),
                     ],
@@ -533,11 +536,12 @@ class PickerEmptyState extends StatelessWidget {
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
-          FilledButton.icon(
+          AppButton(
+            label: createLabel,
             onPressed: onCreateTap,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(createLabel),
-            style: FilledButton.styleFrom(minimumSize: const Size(200, 48)),
+            prefixIcon: Icons.add,
+            size: AppButtonSize.lg,
+            isFullWidth: false,
           ),
         ],
       ),

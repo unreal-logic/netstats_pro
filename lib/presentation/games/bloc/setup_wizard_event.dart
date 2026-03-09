@@ -99,6 +99,13 @@ class IsSuperShotToggled extends SetupWizardEvent {
   List<Object?> get props => [isSuperShot];
 }
 
+class Fast5PowerPlayModeChanged extends SetupWizardEvent {
+  const Fast5PowerPlayModeChanged(this.mode);
+  final Fast5PowerPlayMode mode;
+  @override
+  List<Object?> get props => [mode];
+}
+
 class QuickCreateCompetition extends SetupWizardEvent {
   const QuickCreateCompetition(this.name);
   final String name;
@@ -173,6 +180,20 @@ class QuarterDurationChanged extends SetupWizardEvent {
   final int minutes;
   @override
   List<Object?> get props => [minutes];
+}
+
+class HomePowerPlayQuarterChanged extends SetupWizardEvent {
+  const HomePowerPlayQuarterChanged(this.quarter);
+  final int? quarter;
+  @override
+  List<Object?> get props => [quarter];
+}
+
+class AwayPowerPlayQuarterChanged extends SetupWizardEvent {
+  const AwayPowerPlayQuarterChanged(this.quarter);
+  final int? quarter;
+  @override
+  List<Object?> get props => [quarter];
 }
 
 class SetupSubmitted extends SetupWizardEvent {}

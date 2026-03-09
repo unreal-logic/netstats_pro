@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/injection_container.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_bloc.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_event.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_state.dart';
+import 'package:netstats_pro/core/design_system/widgets/buttons/app_button.dart';
 import 'package:netstats_pro/presentation/games/screens/steps/game_settings_step.dart';
 import 'package:netstats_pro/presentation/games/screens/steps/lineup_selection_step.dart';
 import 'package:netstats_pro/presentation/games/screens/steps/match_details_step.dart';
@@ -36,7 +38,7 @@ class SetupWizardView extends StatelessWidget {
             const SnackBar(content: Text('Match Setup Complete!')),
           );
           if (state.createdGameId != null) {
-            context.go('/games/live/${state.createdGameId}');
+            context.go('/match/live/${state.createdGameId}');
           } else {
             context.go('/games');
           }
@@ -47,8 +49,12 @@ class SetupWizardView extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: const PremiumAppBar(
+        appBar: PremiumAppBar(
           title: 'MATCH SETUP',
+          leading: IconButton(
+            icon: const Icon(Icons.close_rounded),
+            onPressed: () => context.go('/games'),
+          ),
         ),
         body: BlocBuilder<SetupWizardBloc, SetupWizardState>(
           builder: (context, state) {
@@ -58,17 +64,20 @@ class SetupWizardView extends StatelessWidget {
                 children: [
                   SetupProgressIndicator(
                     currentStep: state.currentStep,
-                    totalSteps: 4,
+                    totalSteps: state.trackingMode == TrackingMode.scoreOnly
+                        ? 3
+                        : 4,
                   ),
                   const SizedBox(height: 32),
                   Expanded(
                     child: IndexedStack(
                       index: state.currentStep,
-                      children: const [
-                        MatchDetailsStep(),
-                        TeamsSetupStep(),
-                        LineupSelectionStep(),
-                        GameSettingsStep(),
+                      children: [
+                        const MatchDetailsStep(),
+                        const TeamsSetupStep(),
+                        if (state.trackingMode != TrackingMode.scoreOnly)
+                          const LineupSelectionStep(),
+                        const GameSettingsStep(),
                       ],
                     ),
                   ),
@@ -84,29 +93,36 @@ class SetupWizardView extends StatelessWidget {
   }
 
   Widget _buildControls(BuildContext context, SetupWizardState state) {
-    final isLastStep = state.currentStep == 3;
+    final maxStep = state.trackingMode == TrackingMode.scoreOnly ? 2 : 3;
+    final isLastStep = state.currentStep == maxStep;
     final bloc = context.read<SetupWizardBloc>();
 
     return Row(
       children: [
         if (state.currentStep > 0) ...[
           Expanded(
-            child: OutlinedButton(
+            child: AppButton(
+              label: 'BACK',
               onPressed: () => bloc.add(StepChanged(state.currentStep - 1)),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('BACK'),
+              variant: AppButtonVariant.outlined,
+              size: AppButtonSize.lg,
+            ),
+          ),
+          const SizedBox(width: 12),
+        ] else ...[
+          Expanded(
+            child: AppButton(
+              label: 'CANCEL',
+              onPressed: () => context.go('/games'),
+              variant: AppButtonVariant.outlined,
+              size: AppButtonSize.lg,
             ),
           ),
           const SizedBox(width: 12),
         ],
         Expanded(
-          flex: 2,
-          child: FilledButton(
+          child: AppButton(
+            label: isLastStep ? 'START' : 'NEXT',
             onPressed: state.status == SetupWizardStatus.loading
                 ? null
                 : () {
@@ -125,7 +141,9 @@ class SetupWizardView extends StatelessWidget {
                       );
                       return;
                     }
-                    if (state.currentStep == 2 && !state.isLineupValid) {
+                    if (state.currentStep == 2 &&
+                        state.trackingMode != TrackingMode.scoreOnly &&
+                        !state.isLineupValid) {
                       _showError(
                         context,
                         'Please assign all starting positions',
@@ -133,28 +151,14 @@ class SetupWizardView extends StatelessWidget {
                       return;
                     }
 
-                    if (isLastStep) {
+                    if (state.currentStep >= maxStep) {
                       bloc.add(SetupSubmitted());
                     } else {
                       bloc.add(StepChanged(state.currentStep + 1));
                     }
                   },
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: state.status == SetupWizardStatus.loading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Text(isLastStep ? 'FINALIZE MATCH' : 'CONTINUE'),
+            isLoading: state.status == SetupWizardStatus.loading,
+            size: AppButtonSize.lg,
           ),
         ),
       ],

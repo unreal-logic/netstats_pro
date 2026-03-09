@@ -69,6 +69,7 @@ Future<void> init() async {
           gameRepository: sl(),
           matchEventRepository: sl(),
           playerRepository: sl(),
+          teamRepository: sl(),
         ),
       )
       ..registerLazySingleton<GetMatchSummaryUseCase>(

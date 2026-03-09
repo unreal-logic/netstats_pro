@@ -36,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
@@ -123,6 +123,36 @@ class AppDatabase extends _$AppDatabase {
           } on Exception catch (_) {
             // Column might already exist from a partial sync
           }
+        }
+        if (from < 12) {
+          await m.addColumn(
+            games,
+            (games as dynamic).homeTeamId as GeneratedColumn<int>,
+          );
+          await m.addColumn(
+            games,
+            (games as dynamic).opponentTeamId as GeneratedColumn<int>,
+          );
+        }
+        if (from < 13) {
+          await m.addColumn(
+            games,
+            (games as dynamic).fast5PowerPlayMode as GeneratedColumn<String>,
+          );
+          await m.addColumn(
+            games,
+            (games as dynamic).homePowerPlayQuarter as GeneratedColumn<int>,
+          );
+          await m.addColumn(
+            games,
+            (games as dynamic).awayPowerPlayQuarter as GeneratedColumn<int>,
+          );
+        }
+        if (from < 14) {
+          await m.addColumn(
+            games,
+            (games as dynamic).totalQuarters as GeneratedColumn<int>,
+          );
         }
       },
     );

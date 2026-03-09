@@ -28,6 +28,13 @@ class DriftGameRepository implements GameRepository {
             homeTeamName: Value(game.homeTeamName),
             ourFirstCentrePass: Value(game.ourFirstCentrePass),
             quarterDurationMinutes: Value(game.quarterDurationMinutes),
+            isSuperShot: Value(game.isSuperShot),
+            fast5PowerPlayMode: Value(game.fast5PowerPlayMode.name),
+            homePowerPlayQuarter: Value(game.homePowerPlayQuarter),
+            awayPowerPlayQuarter: Value(game.awayPowerPlayQuarter),
+            homeTeamId: Value(game.homeTeamId),
+            opponentTeamId: Value(game.opponentTeamId),
+            totalQuarters: Value(game.totalQuarters),
           ),
         );
   }
@@ -45,6 +52,13 @@ class DriftGameRepository implements GameRepository {
         status: Value(game.status.name),
         homeScore: Value(game.homeScore),
         awayScore: Value(game.awayScore),
+        homeTeamId: Value(game.homeTeamId),
+        opponentTeamId: Value(game.opponentTeamId),
+        isSuperShot: Value(game.isSuperShot),
+        fast5PowerPlayMode: Value(game.fast5PowerPlayMode.name),
+        homePowerPlayQuarter: Value(game.homePowerPlayQuarter),
+        awayPowerPlayQuarter: Value(game.awayPowerPlayQuarter),
+        totalQuarters: Value(game.totalQuarters),
       ),
     );
   }
@@ -123,9 +137,19 @@ class DriftGameRepository implements GameRepository {
       ),
       homeTeamName: row.homeTeamName,
       ourFirstCentrePass: row.ourFirstCentrePass,
+      isSuperShot: row.isSuperShot,
+      fast5PowerPlayMode: Fast5PowerPlayMode.values.firstWhere(
+        (e) => e.name == row.fast5PowerPlayMode,
+        orElse: () => Fast5PowerPlayMode.contested,
+      ),
+      homePowerPlayQuarter: row.homePowerPlayQuarter,
+      awayPowerPlayQuarter: row.awayPowerPlayQuarter,
       quarterDurationMinutes: row.quarterDurationMinutes,
       homeScore: row.homeScore,
       awayScore: row.awayScore,
+      homeTeamId: row.homeTeamId,
+      opponentTeamId: row.opponentTeamId,
+      totalQuarters: row.totalQuarters,
       createdAt: row.createdAt,
     );
   }

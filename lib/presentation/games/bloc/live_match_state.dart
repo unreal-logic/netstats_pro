@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/domain/entities/match_event.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
@@ -14,8 +15,8 @@ class LiveMatchState extends Equatable {
     this.homeHasPossession = true,
     this.currentQuarter = 1,
     this.matchTime = Duration.zero,
-    this.remainingTime = Duration.zero, // Count down from here
-    this.isPowerPlayActive = false,
+    this.remainingTime = Duration.zero,
+    this.isSpecialScoringActive = false,
     this.isTimerRunning = false,
     this.events = const [],
     this.errorMessage,
@@ -23,8 +24,14 @@ class LiveMatchState extends Equatable {
     this.activePlayerId,
     this.activePlayerPosition,
     this.pendingStat,
-    this.activeTeamId = 0, // 0 for Home, 1 for Away
-    this.isErgonomicLayout = true, // Default to Option B as recommended
+    this.activeTeamId = 0,
+    this.isErgonomicLayout = true,
+    this.homeTeamColor,
+    this.opponentTeamColor,
+    this.isHomePowerPlayActive = false,
+    this.isAwayPowerPlayActive = false,
+    this.nextCenterPassIsHome = true,
+    this.customQuarterDurations = const {},
   });
   final LiveMatchStatus status;
   final Game? game;
@@ -33,7 +40,7 @@ class LiveMatchState extends Equatable {
   final bool homeHasPossession;
   final int currentQuarter;
   final Duration matchTime;
-  final bool isPowerPlayActive;
+  final bool isSpecialScoringActive;
   final bool isTimerRunning;
   final Duration remainingTime;
   final List<MatchEvent> events;
@@ -46,6 +53,12 @@ class LiveMatchState extends Equatable {
   final MatchEventType? pendingStat;
   final int activeTeamId;
   final bool isErgonomicLayout;
+  final Color? homeTeamColor;
+  final Color? opponentTeamColor;
+  final bool isHomePowerPlayActive;
+  final bool isAwayPowerPlayActive;
+  final bool nextCenterPassIsHome;
+  final Map<int, Duration> customQuarterDurations;
 
   bool get isPlayerSelected =>
       activePlayerId != null && activePlayerPosition != null;
@@ -62,7 +75,7 @@ class LiveMatchState extends Equatable {
     homeHasPossession,
     currentQuarter,
     matchTime,
-    isPowerPlayActive,
+    isSpecialScoringActive,
     isTimerRunning,
     remainingTime,
     events,
@@ -73,6 +86,12 @@ class LiveMatchState extends Equatable {
     pendingStat,
     activeTeamId,
     isErgonomicLayout,
+    homeTeamColor,
+    opponentTeamColor,
+    isHomePowerPlayActive,
+    isAwayPowerPlayActive,
+    nextCenterPassIsHome,
+    customQuarterDurations,
   ];
 
   LiveMatchState copyWith({
@@ -83,7 +102,7 @@ class LiveMatchState extends Equatable {
     bool? homeHasPossession,
     int? currentQuarter,
     Duration? matchTime,
-    bool? isPowerPlayActive,
+    bool? isSpecialScoringActive,
     bool? isTimerRunning,
     Duration? remainingTime,
     List<MatchEvent>? events,
@@ -94,6 +113,12 @@ class LiveMatchState extends Equatable {
     MatchEventType? pendingStat,
     int? activeTeamId,
     bool? isErgonomicLayout,
+    Color? homeTeamColor,
+    Color? opponentTeamColor,
+    bool? isHomePowerPlayActive,
+    bool? isAwayPowerPlayActive,
+    bool? nextCenterPassIsHome,
+    Map<int, Duration>? customQuarterDurations,
     bool clearActivePlayer = false,
     bool clearPendingStat = false,
   }) {
@@ -105,7 +130,8 @@ class LiveMatchState extends Equatable {
       homeHasPossession: homeHasPossession ?? this.homeHasPossession,
       currentQuarter: currentQuarter ?? this.currentQuarter,
       matchTime: matchTime ?? this.matchTime,
-      isPowerPlayActive: isPowerPlayActive ?? this.isPowerPlayActive,
+      isSpecialScoringActive:
+          isSpecialScoringActive ?? this.isSpecialScoringActive,
       isTimerRunning: isTimerRunning ?? this.isTimerRunning,
       remainingTime: remainingTime ?? this.remainingTime,
       events: events ?? this.events,
@@ -120,6 +146,15 @@ class LiveMatchState extends Equatable {
       pendingStat: clearPendingStat ? null : (pendingStat ?? this.pendingStat),
       activeTeamId: activeTeamId ?? this.activeTeamId,
       isErgonomicLayout: isErgonomicLayout ?? this.isErgonomicLayout,
+      homeTeamColor: homeTeamColor ?? this.homeTeamColor,
+      opponentTeamColor: opponentTeamColor ?? this.opponentTeamColor,
+      isHomePowerPlayActive:
+          isHomePowerPlayActive ?? this.isHomePowerPlayActive,
+      isAwayPowerPlayActive:
+          isAwayPowerPlayActive ?? this.isAwayPowerPlayActive,
+      nextCenterPassIsHome: nextCenterPassIsHome ?? this.nextCenterPassIsHome,
+      customQuarterDurations:
+          customQuarterDurations ?? this.customQuarterDurations,
     );
   }
 }

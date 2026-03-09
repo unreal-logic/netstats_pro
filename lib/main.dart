@@ -60,29 +60,6 @@ final GoRouter _router = GoRouter(
               pageBuilder: (context, state) => FadePageRoute(
                 child: const GamesScreen(),
               ),
-              routes: [
-                GoRoute(
-                  path: 'setup',
-                  builder: (context, state) => const SetupWizardScreen(),
-                ),
-                GoRoute(
-                  path: 'live/:gameId',
-                  builder: (context, state) {
-                    final gameId = int.parse(state.pathParameters['gameId']!);
-                    return BlocProvider(
-                      create: (context) => sl<LiveMatchBloc>(),
-                      child: LiveMatchScreen(gameId: gameId),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: 'summary/:gameId',
-                  builder: (context, state) {
-                    final gameId = int.parse(state.pathParameters['gameId']!);
-                    return MatchSummaryScreen(gameId: gameId);
-                  },
-                ),
-              ],
             ),
           ],
         ),
@@ -160,6 +137,27 @@ final GoRouter _router = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: '/match/setup',
+      builder: (context, state) => const SetupWizardScreen(),
+    ),
+    GoRoute(
+      path: '/match/live/:gameId',
+      builder: (context, state) {
+        final gameId = int.parse(state.pathParameters['gameId']!);
+        return BlocProvider(
+          create: (context) => sl<LiveMatchBloc>(),
+          child: LiveMatchScreen(gameId: gameId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/match/summary/:gameId',
+      builder: (context, state) {
+        final gameId = int.parse(state.pathParameters['gameId']!);
+        return MatchSummaryScreen(gameId: gameId);
+      },
     ),
   ],
 );
