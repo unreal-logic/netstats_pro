@@ -157,12 +157,18 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                                   ? Icons.whatshot
                                   : Icons.bolt,
                               size: 16,
-                              color: widget.isSpecialScoringActive
+                              color:
+                                  (widget.isSpecialScoringActive ||
+                                      widget.isHomePowerPlayActive ||
+                                      widget.isAwayPowerPlayActive)
                                   ? AppColors.warning
                                   : (widget.homeColor ?? cs.primary).withValues(
                                       alpha: 0.1,
                                     ),
-                              shadows: widget.isSpecialScoringActive
+                              shadows:
+                                  (widget.isSpecialScoringActive ||
+                                      widget.isHomePowerPlayActive ||
+                                      widget.isAwayPowerPlayActive)
                                   ? [
                                       Shadow(
                                         color: AppColors.warning.withValues(
@@ -178,11 +184,17 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                           Text(
                             'QUARTER ${widget.currentQuarter}',
                             style: AppTypography.labelSmall.copyWith(
-                              color: widget.isSpecialScoringActive
+                              color:
+                                  (widget.isSpecialScoringActive ||
+                                      widget.isHomePowerPlayActive ||
+                                      widget.isAwayPowerPlayActive)
                                   ? AppColors.warning
                                   : cs.onSurfaceVariant,
                               letterSpacing: 2,
-                              fontWeight: widget.isSpecialScoringActive
+                              fontWeight:
+                                  (widget.isSpecialScoringActive ||
+                                      widget.isHomePowerPlayActive ||
+                                      widget.isAwayPowerPlayActive)
                                   ? FontWeight.w900
                                   : null,
                             ),
@@ -312,43 +324,7 @@ class _TeamZone extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Avatar & Power Play Toggle
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            _TeamAvatar(color: color, name: name),
-            if (isNominatedMode)
-              Positioned(
-                right: -4,
-                bottom: -4,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: cs.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isPowerPlayActive ? AppColors.warning : color,
-                      width: 1.5,
-                    ),
-                    boxShadow: isPowerPlayActive
-                        ? [
-                            BoxShadow(
-                              color: AppColors.warning.withValues(
-                                alpha: 0.2,
-                              ),
-                              blurRadius: 4,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Icon(
-                    Icons.whatshot,
-                    size: 14,
-                    color: isPowerPlayActive ? AppColors.warning : color,
-                  ),
-                ),
-              ),
-          ],
-        ),
+        _TeamAvatar(color: color, name: name),
         const SizedBox(height: AppSpacing.sm),
         // Info
         Row(
