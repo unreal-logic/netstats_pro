@@ -143,25 +143,17 @@ class _ScoreStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final colorHome = isDecrement
-        ? cs.error
-        : (isHomePowerPlay ? AppColors.warning : AppColors.success);
-    final colorAway = isDecrement
-        ? cs.error
-        : (isAwayPowerPlay ? AppColors.warning : AppColors.success);
 
     return Row(
       children: [
         // Home Increment/Decrement
         Expanded(
           child: _StepButton(
-            icon: isDecrement
-                ? Icons.remove
-                : (isHomePowerPlay ? Icons.whatshot : Icons.add),
-            color: colorHome,
+            icon: isDecrement ? Icons.remove : (_getIcon(context)),
+            color: _getColor(cs),
             onTap: onHomeTap,
             isEnabled: isEnabled,
-            isPowerPlay: !isDecrement && isHomePowerPlay,
+            isPowerPlayBadgeVisible: _isPowerPlayBadgeVisible(isHomePowerPlay),
           ),
         ),
 
@@ -198,15 +190,58 @@ class _ScoreStepper extends StatelessWidget {
           child: _StepButton(
             icon: isDecrement
                 ? Icons.remove
-                : (isAwayPowerPlay ? Icons.whatshot : Icons.add),
-            color: colorAway,
+                : (_getIcon(context, isAway: true)),
+            color: _getColor(cs, isAway: true),
             onTap: onAwayTap,
             isEnabled: isEnabled,
-            isPowerPlay: !isDecrement && isAwayPowerPlay,
+            isPowerPlayBadgeVisible: _isPowerPlayBadgeVisible(isAwayPowerPlay),
           ),
         ),
       ],
     );
+  }
+
+  IconData _getIcon(BuildContext context, {bool isAway = false}) {
+    // 1PT always remains standard plus icon in 7-aside
+    if (label == '1PT' && game.format == GameFormat.sevenAside) {
+      return Icons.add;
+    }
+
+    // 2PT always uses bolt icon in 7-aside
+    if (label == '2PT' && game.format == GameFormat.sevenAside) {
+      return Icons.bolt;
+    }
+
+    final isPowerPlay = isAway ? isAwayPowerPlay : isHomePowerPlay;
+    if (!isPowerPlay) return Icons.add;
+
+    // 5-aside Power Play (or other formats) uses flame
+    return Icons.whatshot;
+  }
+
+  Color _getColor(ColorScheme cs, {bool isAway = false}) {
+    if (isDecrement) return cs.error;
+    final isPowerPlay = isAway ? isAwayPowerPlay : isHomePowerPlay;
+
+    if (isPowerPlay) {
+      // 7-aside Super Shot 1PT stays green, 2PT uses warning/orange
+      if (game.format == GameFormat.sevenAside) {
+        return label == '1PT' ? AppColors.success : AppColors.warning;
+      }
+      return AppColors.warning;
+    }
+
+    return AppColors.success;
+  }
+
+  bool _isPowerPlayBadgeVisible(bool isActive) {
+    if (isDecrement) return false;
+    if (!isActive) return false;
+
+    // No x2 badge for 7-aside Super Shot or 6-aside
+    if (game.format != GameFormat.fiveAside) return false;
+
+    return true;
   }
 }
 
@@ -216,14 +251,14 @@ class _StepButton extends StatelessWidget {
     required this.color,
     required this.onTap,
     this.isEnabled = true,
-    this.isPowerPlay = false,
+    this.isPowerPlayBadgeVisible = false,
   });
 
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
   final bool isEnabled;
-  final bool isPowerPlay;
+  final bool isPowerPlayBadgeVisible;
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +282,9 @@ class _StepButton extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: AppRadius.brLg,
               border: Border.all(
-                color: color.withValues(alpha: 0.5),
+                color: isEnabled
+                    ? color.withValues(alpha: 0.5)
+                    : cs.outline.withValues(alpha: 0.2),
                 width: 1.5,
               ),
             ),
@@ -259,7 +296,7 @@ class _StepButton extends StatelessWidget {
                   color: isEnabled ? color : cs.outline.withValues(alpha: 0.3),
                   size: 32,
                 ),
-                if (isPowerPlay && isEnabled)
+                if (isPowerPlayBadgeVisible && isEnabled)
                   Positioned(
                     right: 8,
                     top: 8,

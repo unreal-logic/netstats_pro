@@ -129,6 +129,7 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                   widget.format == GameFormat.fiveAside &&
                   widget.fast5PowerPlayMode == Fast5PowerPlayMode.nominated,
               onPowerPlayToggle: widget.onHomePowerPlayToggle,
+              format: widget.format,
             ),
           ),
 
@@ -272,6 +273,7 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                   widget.format == GameFormat.fiveAside &&
                   widget.fast5PowerPlayMode == Fast5PowerPlayMode.nominated,
               onPowerPlayToggle: widget.onAwayPowerPlayToggle,
+              format: widget.format,
             ),
           ),
         ],
@@ -288,6 +290,7 @@ class _TeamZone extends StatelessWidget {
     required this.isHome,
     required this.isPowerPlayActive,
     required this.isNominatedMode,
+    required this.format,
     this.onPowerPlayToggle,
   });
 
@@ -297,6 +300,7 @@ class _TeamZone extends StatelessWidget {
   final bool isHome;
   final bool isPowerPlayActive;
   final bool isNominatedMode;
+  final GameFormat format;
   final VoidCallback? onPowerPlayToggle;
 
   @override
@@ -363,7 +367,11 @@ class _TeamZone extends StatelessWidget {
             ),
             if (isPowerPlayActive && !isNominatedMode) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.whatshot, size: 12, color: AppColors.warning),
+              Icon(
+                format == GameFormat.fiveAside ? Icons.whatshot : Icons.bolt,
+                size: 12,
+                color: AppColors.warning,
+              ),
             ],
           ],
         ),

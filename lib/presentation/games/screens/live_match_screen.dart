@@ -264,7 +264,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
           // Play/Pause Button
           SizedBox(
             height: 56,
-            width: 140,
+            width: 160,
             child: Builder(
               builder: (context) {
                 final isAtStart = state.matchTime == Duration.zero;
@@ -277,7 +277,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                 final VoidCallback onTap;
 
                 if (isFinished) {
-                  label = isLastQuarter ? 'FINISH' : 'NEXT QTR';
+                  label = isLastQuarter ? 'FINISH' : 'NEXT';
                   icon = isLastQuarter
                       ? Icons.check_circle_outline_rounded
                       : Icons.fast_forward_rounded;
@@ -640,6 +640,22 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                       child: const Text('START EXTRA QUARTER'),
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'CANCEL',
+                        style: AppTypography.labelLarge.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
                   SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
                 ],
               ),
@@ -772,7 +788,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
     }
 
     // Animation control
-    if (shouldPulse) {
+    if (shouldPulse && state.isTimerRunning && remainingSeconds > 0) {
       if (!_pulseController.isAnimating) {
         _pulseController.repeat(reverse: true);
       }
