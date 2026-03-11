@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:netstats_pro/core/design_system/design_overlay_settings.dart';
 import 'package:netstats_pro/data/database/app_database.dart';
 import 'package:netstats_pro/data/repositories/drift_competition_repository.dart';
 import 'package:netstats_pro/data/repositories/drift_game_repository.dart';
@@ -35,6 +36,7 @@ Future<void> init() async {
 
     sl
       ..registerSingleton<AppDatabase>(database)
+      ..registerSingleton<DesignOverlaySettings>(DesignOverlaySettings())
       // ─── Repositories ─────────────────────────────────────────────────────
       ..registerLazySingleton<PlayerRepository>(
         () => DriftPlayerRepository(sl()),

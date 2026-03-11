@@ -18,8 +18,8 @@ class DriftMatchEventRepository implements MatchEventRepository {
   }
 
   @override
-  Future<void> saveEvent(entity.MatchEvent event) async {
-    await database
+  Future<int> saveEvent(entity.MatchEvent event) async {
+    return database
         .into(database.matchEvents)
         .insert(
           db.MatchEventsCompanion.insert(
@@ -32,6 +32,8 @@ class DriftMatchEventRepository implements MatchEventRepository {
             position: Value(event.position),
             isSpecialScoring: Value(event.isSpecialScoring),
             isHomeTeam: Value(event.isHomeTeam),
+            shotX: Value(event.shotX),
+            shotY: Value(event.shotY),
           ),
         );
   }
@@ -62,6 +64,8 @@ class DriftMatchEventRepository implements MatchEventRepository {
       position: data.position,
       isSpecialScoring: data.isSpecialScoring,
       isHomeTeam: data.isHomeTeam,
+      shotX: data.shotX,
+      shotY: data.shotY,
     );
   }
 }

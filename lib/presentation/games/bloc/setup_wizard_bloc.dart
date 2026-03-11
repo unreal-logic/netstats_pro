@@ -73,7 +73,7 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
       ),
       onData: (data) {
         final comps = data.$1;
-        int? compId = state.competitionId;
+        var compId = state.competitionId;
 
         // Auto-select competition if no competition is currently selected
         if (compId == null && comps.isNotEmpty) {
@@ -342,8 +342,9 @@ class SetupWizardBloc extends Bloc<SetupWizardEvent, SetupWizardState> {
     // Filter to the relevant team's roster
     final teamId = event.isHomeTeam ? state.homeTeamId : state.opponentTeamId;
 
-    // IMPORTANT: If teamId is null, only use players who also have teamId == null
-    // This prevents picking up players from established teams for a one-off match.
+    // IMPORTANT: If teamId is null, only use players who also have
+    // teamId == null. This prevents picking up players from established
+    // teams for a one-off match.
     final teamPlayers = allPlayers.where((p) => p.teamId == teamId).toList();
 
     final currentLineup = event.isHomeTeam

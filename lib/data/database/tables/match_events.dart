@@ -18,4 +18,6 @@ class MatchEvents extends Table {
   BoolColumn get isSpecialScoring =>
       boolean().withDefault(const Constant(false))();
   BoolColumn get isHomeTeam => boolean().withDefault(const Constant(true))();
+  RealColumn get shotX => real().nullable()();
+  RealColumn get shotY => real().nullable()();
 }

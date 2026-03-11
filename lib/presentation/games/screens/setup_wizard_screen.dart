@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:netstats_pro/core/design_system/widgets/buttons/app_button.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/injection_container.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_bloc.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_event.dart';
 import 'package:netstats_pro/presentation/games/bloc/setup_wizard_state.dart';
-import 'package:netstats_pro/core/design_system/widgets/buttons/app_button.dart';
 import 'package:netstats_pro/presentation/games/screens/steps/game_settings_step.dart';
 import 'package:netstats_pro/presentation/games/screens/steps/lineup_selection_step.dart';
 import 'package:netstats_pro/presentation/games/screens/steps/match_details_step.dart';
@@ -58,18 +58,21 @@ class SetupWizardView extends StatelessWidget {
         ),
         body: BlocBuilder<SetupWizardBloc, SetupWizardState>(
           builder: (context, state) {
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  SetupProgressIndicator(
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                  child: SetupProgressIndicator(
                     currentStep: state.currentStep,
                     totalSteps: state.trackingMode == TrackingMode.scoreOnly
                         ? 3
                         : 4,
                   ),
-                  const SizedBox(height: 32),
-                  Expanded(
+                ),
+                const SizedBox(height: 32),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: IndexedStack(
                       index: state.currentStep,
                       children: [
@@ -81,10 +84,17 @@ class SetupWizardView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  _buildControls(context, state),
-                ],
-              ),
+                ),
+              ],
+            );
+          },
+        ),
+        bottomNavigationBar: BlocBuilder<SetupWizardBloc, SetupWizardState>(
+          builder: (context, state) {
+            return BottomAppBar(
+              height: 100,
+              padding: const EdgeInsets.all(24),
+              child: _buildControls(context, state),
             );
           },
         ),

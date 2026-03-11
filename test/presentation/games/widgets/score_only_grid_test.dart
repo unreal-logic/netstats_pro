@@ -56,7 +56,7 @@ void main() {
       );
 
       // opacity should be around 0.1
-      expect(material.color?.opacity, closeTo(0.1, 0.1));
+      expect(material.color?.a, closeTo(0.1, 0.1));
     });
   });
 
@@ -100,7 +100,7 @@ void main() {
         final boltIcons = find.byIcon(Icons.bolt);
         // The first bolt icon is the 2PT goal
         final icon2pt = tester.widget<Icon>(boltIcons.at(0));
-        expect(icon2pt.color?.opacity, closeTo(0.3, 0.1));
+        expect(icon2pt.color?.a, closeTo(0.3, 0.1));
       },
     );
 
@@ -140,7 +140,7 @@ void main() {
       final boltIcons = find.byIcon(Icons.bolt);
       // In 5-aside, we have 2PT (at 0,1) and 3PT (at 2,3)
       final icon3pt = tester.widget<Icon>(boltIcons.at(2)); // 3PT Home
-      expect(icon3pt.color?.opacity, 1.0);
+      expect(icon3pt.color?.a, 1.0);
     });
   });
 }

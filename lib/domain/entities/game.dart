@@ -61,7 +61,8 @@ enum Fast5PowerPlayMode {
   ),
   nominated(
     'Nominated (Team Choice)',
-    'Each team selects one quarter for their Power Play (points doubled for entire quarter).',
+    'Each team selects one quarter for their Power Play '
+        '(points doubled for entire quarter).',
   )
   ;
 

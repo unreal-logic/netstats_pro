@@ -22,14 +22,25 @@ class LogEvent extends LiveMatchEvent {
     this.playerId,
     this.position,
     this.isHomeTeam = true,
+    this.shotX,
+    this.shotY,
   });
   final MatchEventType type;
   final int? playerId;
   final String? position;
   final bool isHomeTeam;
+  final double? shotX;
+  final double? shotY;
 
   @override
-  List<Object?> get props => [type, playerId, position, isHomeTeam];
+  List<Object?> get props => [
+    type,
+    playerId,
+    position,
+    isHomeTeam,
+    shotX,
+    shotY,
+  ];
 }
 
 class TogglePowerPlay extends LiveMatchEvent {}
@@ -73,6 +84,14 @@ class AddExtraQuarter extends LiveMatchEvent {
 }
 
 class UndoEvent extends LiveMatchEvent {}
+
+class DeleteEvent extends LiveMatchEvent {
+  const DeleteEvent(this.eventId);
+  final int eventId;
+
+  @override
+  List<Object?> get props => [eventId];
+}
 
 class EndMatch extends LiveMatchEvent {}
 

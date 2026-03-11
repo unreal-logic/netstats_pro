@@ -23,6 +23,8 @@ class PremiumScoreboard extends StatefulWidget {
     this.homeColor,
     this.awayColor,
     this.isLastQuarter = false,
+    this.activeRecordingHome,
+    this.isRecordingMode = false,
     this.onTimerTap,
     this.onPossessionTap,
     this.onHomePowerPlayToggle,
@@ -49,6 +51,8 @@ class PremiumScoreboard extends StatefulWidget {
   final Color? awayColor;
   final bool isFinished;
   final bool isLastQuarter;
+  final bool? activeRecordingHome;
+  final bool isRecordingMode;
   final VoidCallback? onTimerTap;
   final VoidCallback? onPossessionTap;
   final VoidCallback? onHomePowerPlayToggle;
@@ -99,14 +103,12 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
               : 1,
         ),
         boxShadow: [
-          // Deep drop shadow
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
             spreadRadius: -5,
           ),
-          // Subtle primary glow
           BoxShadow(
             color: cs.primary.withValues(alpha: 0.05),
             blurRadius: 40,
@@ -116,7 +118,6 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
       ),
       child: Row(
         children: [
-          // Home Team Zone
           Expanded(
             child: _TeamZone(
               name: widget.homeTeamName,
@@ -129,10 +130,11 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                   widget.fast5PowerPlayMode == Fast5PowerPlayMode.nominated,
               onPowerPlayToggle: widget.onHomePowerPlayToggle,
               format: widget.format,
+              isActiveRecording:
+                  widget.isRecordingMode &&
+                  (widget.activeRecordingHome ?? false),
             ),
           ),
-
-          // Game Center
           SizedBox(
             width: 120,
             child: Column(
@@ -258,7 +260,6 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                // Possession Indicator
                 GestureDetector(
                   onTap: widget.onPossessionTap,
                   behavior: HitTestBehavior.opaque,
@@ -271,8 +272,6 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
               ],
             ),
           ),
-
-          // Away Team Zone
           Expanded(
             child: _TeamZone(
               name: widget.awayTeamName,
@@ -285,6 +284,9 @@ class _PremiumScoreboardState extends State<PremiumScoreboard> {
                   widget.fast5PowerPlayMode == Fast5PowerPlayMode.nominated,
               onPowerPlayToggle: widget.onAwayPowerPlayToggle,
               format: widget.format,
+              isActiveRecording:
+                  widget.isRecordingMode &&
+                  !(widget.activeRecordingHome ?? true),
             ),
           ),
         ],
@@ -302,6 +304,7 @@ class _TeamZone extends StatelessWidget {
     required this.isPowerPlayActive,
     required this.isNominatedMode,
     required this.format,
+    required this.isActiveRecording,
     this.onPowerPlayToggle,
   });
 
@@ -312,45 +315,58 @@ class _TeamZone extends StatelessWidget {
   final bool isPowerPlayActive;
   final bool isNominatedMode;
   final GameFormat format;
+  final bool isActiveRecording;
   final VoidCallback? onPowerPlayToggle;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Avatar & Power Play Toggle
-        _TeamAvatar(color: color, name: name),
-        const SizedBox(height: AppSpacing.sm),
-        // Info
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              name.toUpperCase(),
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.labelMedium.copyWith(
-                fontWeight: FontWeight.w900,
-                color: cs.onSurfaceVariant,
-                fontSize: 10,
+    return Opacity(
+      opacity: isActiveRecording
+          ? 1.0
+          : (context
+                        .findAncestorWidgetOfExactType<PremiumScoreboard>()
+                        ?.isRecordingMode ??
+                    false
+                ? 0.6
+                : 1.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _TeamAvatar(
+            color: color,
+            name: name,
+            isRecording: isActiveRecording,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name.toUpperCase(),
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.labelMedium.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: cs.onSurfaceVariant,
+                  fontSize: 10,
+                ),
               ),
-            ),
-            if (isPowerPlayActive && !isNominatedMode) ...[
-              const SizedBox(width: 4),
-              Icon(
-                format == GameFormat.fiveAside ? Icons.whatshot : Icons.bolt,
-                size: 12,
-                color: AppColors.warning,
-              ),
+              if (isPowerPlayActive && !isNominatedMode) ...[
+                const SizedBox(width: 4),
+                Icon(
+                  format == GameFormat.fiveAside ? Icons.whatshot : Icons.bolt,
+                  size: 12,
+                  color: AppColors.warning,
+                ),
+              ],
             ],
-          ],
-        ),
-        _AnimatedScore(score: score, color: cs.onSurface),
-      ],
+          ),
+          _AnimatedScore(score: score, color: cs.onSurface),
+        ],
+      ),
     );
   }
 }
@@ -396,16 +412,31 @@ class _AnimatedScore extends StatelessWidget {
   }
 }
 
-class _TeamAvatar extends StatelessWidget {
-  const _TeamAvatar({required this.color, required this.name});
+class _TeamAvatar extends StatefulWidget {
+  const _TeamAvatar({
+    required this.color,
+    required this.name,
+    this.isRecording = false,
+  });
 
   final Color color;
   final String name;
+  final bool isRecording;
+
+  @override
+  State<_TeamAvatar> createState() => _TeamAvatarState();
+}
+
+class _TeamAvatarState extends State<_TeamAvatar> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    final initial = widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?';
 
     return Container(
       width: 40,
@@ -413,13 +444,18 @@ class _TeamAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         shape: BoxShape.circle,
-        border: Border.all(color: color, width: 2),
+        border: Border.all(
+          color: widget.color.withValues(
+            alpha: widget.isRecording ? 1.0 : 0.4,
+          ),
+          width: 2,
+        ),
       ),
       child: Center(
         child: Text(
           initial,
           style: AppTypography.labelLarge.copyWith(
-            color: color,
+            color: widget.color,
             fontWeight: FontWeight.w900,
           ),
         ),

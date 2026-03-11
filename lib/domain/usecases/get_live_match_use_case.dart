@@ -1,6 +1,7 @@
 import 'package:netstats_pro/domain/entities/game.dart';
 import 'package:netstats_pro/domain/entities/match_event.dart';
 import 'package:netstats_pro/domain/entities/player.dart';
+import 'package:netstats_pro/domain/entities/team.dart';
 import 'package:netstats_pro/domain/repositories/game_repository.dart';
 import 'package:netstats_pro/domain/repositories/match_event_repository.dart';
 import 'package:netstats_pro/domain/repositories/player_repository.dart';
@@ -43,16 +44,18 @@ class GetLiveMatchUseCase {
         ? await teamRepository.getTeamById(game.opponentTeamId!)
         : null;
 
+    String? colorToHex(Team? team) {
+      if (team?.color == null) return null;
+      final hex = team!.color!.toARGB32().toRadixString(16);
+      return '#${hex.padLeft(8, '0')}';
+    }
+
     return LiveMatchData(
       game: game,
       events: events,
       homeLineup: homeLineup,
-      homeTeamColor: homeTeam?.color != null
-          ? '#${homeTeam!.color!.toARGB32().toRadixString(16).padLeft(8, '0')}'
-          : null,
-      opponentTeamColor: opponentTeam?.color != null
-          ? '#${opponentTeam!.color!.toARGB32().toRadixString(16).padLeft(8, '0')}'
-          : null,
+      homeTeamColor: colorToHex(homeTeam),
+      opponentTeamColor: colorToHex(opponentTeam),
     );
   }
 }

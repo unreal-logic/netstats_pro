@@ -36,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {
@@ -153,6 +153,10 @@ class AppDatabase extends _$AppDatabase {
             games,
             (games as dynamic).totalQuarters as GeneratedColumn<int>,
           );
+        }
+        if (from < 16) {
+          await m.addColumn(matchEvents, matchEvents.shotX);
+          await m.addColumn(matchEvents, matchEvents.shotY);
         }
       },
       beforeOpen: (details) async {

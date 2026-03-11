@@ -19,6 +19,7 @@ class MockMatchEventRepository extends Mock implements MatchEventRepository {}
 class MockGetLiveMatchUseCase extends Mock implements GetLiveMatchUseCase {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late MockGameRepository gameRepository;
   late MockMatchEventRepository matchEventRepository;
   late MockGetLiveMatchUseCase getLiveMatchUseCase;
@@ -73,6 +74,7 @@ void main() {
     format: GameFormat.sixAside,
     status: GameStatus.scheduled,
     ourFirstCentrePass: true,
+    quarterDurationMinutes: 10,
     createdAt: DateTime.now(),
   );
 
@@ -107,7 +109,7 @@ void main() {
       build: () {
         when(
           () => matchEventRepository.saveEvent(any()),
-        ).thenAnswer((_) async {});
+        ).thenAnswer((_) async => 100);
         when(() => gameRepository.updateGame(any())).thenAnswer((_) async {});
         return liveMatchBloc;
       },
@@ -143,6 +145,40 @@ void main() {
         predicate<LiveMatchState>((state) => state.isTimerRunning),
         predicate<LiveMatchState>((state) => !state.isTimerRunning),
       ],
+    );
+
+    blocTest<LiveMatchBloc, LiveMatchState>(
+      'removes last event and reverts score on UndoEvent',
+      build: () {
+        when(
+          () => matchEventRepository.deleteEvent(any()),
+        ).thenAnswer((_) async {});
+        return liveMatchBloc;
+      },
+      seed: () => LiveMatchState(
+        status: LiveMatchStatus.active,
+        game: mockGame,
+        events: [
+          MatchEvent(
+            id: 1,
+            gameId: 1,
+            quarter: 1,
+            matchTime: Duration.zero,
+            timestamp: DateTime.now(),
+            type: MatchEventType.goal,
+          ),
+        ],
+        scoreHome: 1,
+      ),
+      act: (bloc) => bloc.add(UndoEvent()),
+      expect: () => [
+        predicate<LiveMatchState>((state) {
+          return state.scoreHome == 0 && state.events.isEmpty;
+        }),
+      ],
+      verify: (_) {
+        verify(() => matchEventRepository.deleteEvent(1)).called(1);
+      },
     );
   });
 }

@@ -54,7 +54,9 @@ void main() {
     matchEventRepository = MockMatchEventRepository();
     getLiveMatchUseCase = MockGetLiveMatchUseCase();
 
-    when(() => matchEventRepository.saveEvent(any())).thenAnswer((_) async {});
+    when(
+      () => matchEventRepository.saveEvent(any()),
+    ).thenAnswer((_) async => 100);
     when(() => gameRepository.updateGame(any())).thenAnswer((_) async {});
 
     liveMatchBloc = LiveMatchBloc(
@@ -130,15 +132,17 @@ void main() {
 
   group('FAST5 Nominated Power Play', () {
     blocTest<LiveMatchBloc, LiveMatchState>(
-      'toggling home power play sets isHomePowerPlayActive and scores double for home',
+      'toggling home power play sets isHomePowerPlayActive '
+      'and scores double for home',
       build: () => liveMatchBloc,
       seed: () => LiveMatchState(
         status: LiveMatchStatus.active,
         game: fast5NominatedGame,
       ),
       act: (bloc) {
-        bloc.add(const ToggleTeamPowerPlay(isHomeTeam: true));
-        bloc.add(const LogEvent(type: MatchEventType.goal));
+        bloc
+          ..add(const ToggleTeamPowerPlay(isHomeTeam: true))
+          ..add(const LogEvent(type: MatchEventType.goal));
       },
       expect: () => [
         predicate<LiveMatchState>((state) => state.isHomePowerPlayActive),

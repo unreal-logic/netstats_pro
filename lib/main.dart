@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:netstats_pro/core/design_system/design_overlay_settings.dart';
 import 'package:netstats_pro/core/design_system/design_system.dart';
+import 'package:netstats_pro/core/design_system/widgets/design_overlay.dart';
 import 'package:netstats_pro/core/theme/transitions.dart';
 import 'package:netstats_pro/injection_container.dart' as di;
 import 'package:netstats_pro/injection_container.dart' show sl;
@@ -178,6 +180,12 @@ class NetstatsProApp extends StatelessWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: currentMode,
+          builder: (context, child) {
+            return DesignOverlay(
+              settings: sl<DesignOverlaySettings>(),
+              child: child!,
+            );
+          },
         );
       },
     );

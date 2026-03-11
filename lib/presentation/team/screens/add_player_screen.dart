@@ -120,6 +120,7 @@ class AddPlayerScreen extends StatelessWidget {
                     const _PositionSelector(),
                     const SizedBox(height: 48),
                     const _SubmitButton(),
+                    const SizedBox(height: 48),
                   ],
                 ),
               );

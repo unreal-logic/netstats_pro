@@ -22,6 +22,7 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
     on<UpdateClock>(_onUpdateClock);
     on<ChangeQuarter>(_onChangeQuarter);
     on<UndoEvent>(_onUndoEvent);
+    on<DeleteEvent>(_onDeleteEvent);
     on<EndMatch>(_onEndMatch);
     on<StartTimer>(_onStartTimer);
     on<PauseTimer>(_onPauseTimer);
@@ -98,7 +99,7 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
           ),
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: LiveMatchStatus.error,
@@ -120,7 +121,7 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
       }
       buffer.write(clean);
       return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (e) {
+    } on Exception catch (_) {
       return Colors.transparent;
     }
   }
@@ -150,14 +151,18 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
       position: event.position ?? state.activePlayerPosition,
       isSpecialScoring: isSpecial,
       isHomeTeam: event.isHomeTeam,
+      shotX: event.shotX,
+      shotY: event.shotY,
     );
 
     try {
-      unawaited(matchEventRepository.saveEvent(matchEvent));
-      final updatedEvents = List<MatchEvent>.from(state.events)
-        ..add(matchEvent);
+      final id = await matchEventRepository.saveEvent(matchEvent);
+      final eventWithId = matchEvent.copyWith(id: id);
 
-      final points = _calculatePoints(matchEvent, state.game!);
+      final updatedEvents = List<MatchEvent>.from(state.events)
+        ..add(eventWithId);
+
+      final points = _calculatePoints(eventWithId, state.game!);
 
       LiveMatchState newState;
 
@@ -198,7 +203,7 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
       }
 
       emit(newState);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error saving event: $e');
     }
   }
@@ -285,9 +290,11 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
     ToggleTeamPowerPlay event,
     Emitter<LiveMatchState> emit,
   ) {
-    // NOMINATED mode: Manual toggling is disabled as it's driven by pre-match selection
-    // and auto-activated on quarter change.
-    return;
+    if (event.isHomeTeam) {
+      emit(state.copyWith(isHomePowerPlayActive: !state.isHomePowerPlayActive));
+    } else {
+      emit(state.copyWith(isAwayPowerPlayActive: !state.isAwayPowerPlayActive));
+    }
   }
 
   void _onUpdateClock(UpdateClock event, Emitter<LiveMatchState> emit) {
@@ -361,7 +368,8 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
         homeHasPossession: state.nextCenterPassIsHome,
         // For FAST5, if we want to follow "A B A B" start rule exactly:
         // nextCenterPassIsHome: !previousQuarterStartIsHome
-        // But the 7-aside "Continuous Sequence" rule is more robust if a quarter ends mid-pass.
+        // But the 7-aside "Continuous Sequence" rule is more robust
+        // if a quarter ends mid-pass.
         isHomePowerPlayActive:
             state.game?.fast5PowerPlayMode == Fast5PowerPlayMode.nominated &&
             state.game?.homePowerPlayQuarter == event.quarter,
@@ -495,8 +503,61 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
       }
 
       emit(newState);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error undoing event: $e');
+    }
+  }
+
+  Future<void> _onDeleteEvent(
+    DeleteEvent event,
+    Emitter<LiveMatchState> emit,
+  ) async {
+    final eventToDelete = state.events.firstWhere((e) => e.id == event.eventId);
+
+    try {
+      await matchEventRepository.deleteEvent(event.eventId);
+      final updatedEvents = state.events
+          .where((e) => e.id != event.eventId)
+          .toList();
+
+      final points = _calculatePoints(eventToDelete, state.game!);
+
+      LiveMatchState newState;
+      if (eventToDelete.isHomeTeam) {
+        newState = state.copyWith(
+          events: updatedEvents,
+          scoreHome: state.scoreHome - points,
+        );
+      } else {
+        newState = state.copyWith(
+          events: updatedEvents,
+          scoreAway: state.scoreAway - points,
+        );
+      }
+
+      // If it was the most recent goal, we might need to revert possession
+      // (Simplified logic for now: only if it's the very last event)
+      if (state.events.isNotEmpty &&
+          state.events.last.id == event.eventId &&
+          (eventToDelete.type == MatchEventType.goal ||
+              eventToDelete.type == MatchEventType.goal2pt ||
+              eventToDelete.type == MatchEventType.goal3pt)) {
+        if (state.game?.format == GameFormat.sevenAside) {
+          newState = newState.copyWith(
+            nextCenterPassIsHome: !state.nextCenterPassIsHome,
+            homeHasPossession: !state.nextCenterPassIsHome,
+          );
+        } else {
+          newState = newState.copyWith(
+            homeHasPossession: eventToDelete.isHomeTeam,
+            nextCenterPassIsHome: eventToDelete.isHomeTeam,
+          );
+        }
+      }
+
+      emit(newState);
+    } on Exception catch (e) {
+      debugPrint('Error deleting event: $e');
     }
   }
 
@@ -512,7 +573,7 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
 
       await gameRepository.updateGame(updatedGame);
       emit(state.copyWith(status: LiveMatchStatus.finished, game: updatedGame));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: LiveMatchStatus.error,
@@ -559,7 +620,8 @@ class LiveMatchBloc extends Bloc<LiveMatchEvent, LiveMatchState> {
       if (event.type == MatchEventType.goal2pt) {
         return event.isSpecialScoring ? 2 : 1;
       }
-      // 3pt shots are not standard in SSN, but if they exist, treat as 1pt or 2pt
+      // 3pt shots are not standard in SSN, but if they exist,
+      // treat as 1pt or 2pt
       if (event.type == MatchEventType.goal3pt) {
         return event.isSpecialScoring ? 2 : 1;
       }

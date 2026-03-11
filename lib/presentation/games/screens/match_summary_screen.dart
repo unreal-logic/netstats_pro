@@ -109,6 +109,7 @@ class MatchSummaryScreen extends StatelessWidget {
                       child: const Text('BACK TO MATCHES'),
                     ),
                   ),
+                  const SizedBox(height: 32),
                 ],
               ),
             );

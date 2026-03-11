@@ -2694,6 +2694,24 @@ class $MatchEventsTable extends MatchEvents
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _shotXMeta = const VerificationMeta('shotX');
+  @override
+  late final GeneratedColumn<double> shotX = GeneratedColumn<double>(
+    'shot_x',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _shotYMeta = const VerificationMeta('shotY');
+  @override
+  late final GeneratedColumn<double> shotY = GeneratedColumn<double>(
+    'shot_y',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2706,6 +2724,8 @@ class $MatchEventsTable extends MatchEvents
     position,
     isSpecialScoring,
     isHomeTeam,
+    shotX,
+    shotY,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2795,6 +2815,18 @@ class $MatchEventsTable extends MatchEvents
         ),
       );
     }
+    if (data.containsKey('shot_x')) {
+      context.handle(
+        _shotXMeta,
+        shotX.isAcceptableOrUnknown(data['shot_x']!, _shotXMeta),
+      );
+    }
+    if (data.containsKey('shot_y')) {
+      context.handle(
+        _shotYMeta,
+        shotY.isAcceptableOrUnknown(data['shot_y']!, _shotYMeta),
+      );
+    }
     return context;
   }
 
@@ -2844,6 +2876,14 @@ class $MatchEventsTable extends MatchEvents
         DriftSqlType.bool,
         data['${effectivePrefix}is_home_team'],
       )!,
+      shotX: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}shot_x'],
+      ),
+      shotY: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}shot_y'],
+      ),
     );
   }
 
@@ -2864,6 +2904,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
   final String? position;
   final bool isSpecialScoring;
   final bool isHomeTeam;
+  final double? shotX;
+  final double? shotY;
   const MatchEvent({
     required this.id,
     required this.gameId,
@@ -2875,6 +2917,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
     this.position,
     required this.isSpecialScoring,
     required this.isHomeTeam,
+    this.shotX,
+    this.shotY,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2893,6 +2937,12 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
     }
     map['is_special_scoring'] = Variable<bool>(isSpecialScoring);
     map['is_home_team'] = Variable<bool>(isHomeTeam);
+    if (!nullToAbsent || shotX != null) {
+      map['shot_x'] = Variable<double>(shotX);
+    }
+    if (!nullToAbsent || shotY != null) {
+      map['shot_y'] = Variable<double>(shotY);
+    }
     return map;
   }
 
@@ -2912,6 +2962,12 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
           : Value(position),
       isSpecialScoring: Value(isSpecialScoring),
       isHomeTeam: Value(isHomeTeam),
+      shotX: shotX == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shotX),
+      shotY: shotY == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shotY),
     );
   }
 
@@ -2931,6 +2987,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
       position: serializer.fromJson<String?>(json['position']),
       isSpecialScoring: serializer.fromJson<bool>(json['isSpecialScoring']),
       isHomeTeam: serializer.fromJson<bool>(json['isHomeTeam']),
+      shotX: serializer.fromJson<double?>(json['shotX']),
+      shotY: serializer.fromJson<double?>(json['shotY']),
     );
   }
   @override
@@ -2947,6 +3005,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
       'position': serializer.toJson<String?>(position),
       'isSpecialScoring': serializer.toJson<bool>(isSpecialScoring),
       'isHomeTeam': serializer.toJson<bool>(isHomeTeam),
+      'shotX': serializer.toJson<double?>(shotX),
+      'shotY': serializer.toJson<double?>(shotY),
     };
   }
 
@@ -2961,6 +3021,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
     Value<String?> position = const Value.absent(),
     bool? isSpecialScoring,
     bool? isHomeTeam,
+    Value<double?> shotX = const Value.absent(),
+    Value<double?> shotY = const Value.absent(),
   }) => MatchEvent(
     id: id ?? this.id,
     gameId: gameId ?? this.gameId,
@@ -2972,6 +3034,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
     position: position.present ? position.value : this.position,
     isSpecialScoring: isSpecialScoring ?? this.isSpecialScoring,
     isHomeTeam: isHomeTeam ?? this.isHomeTeam,
+    shotX: shotX.present ? shotX.value : this.shotX,
+    shotY: shotY.present ? shotY.value : this.shotY,
   );
   MatchEvent copyWithCompanion(MatchEventsCompanion data) {
     return MatchEvent(
@@ -2991,6 +3055,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
       isHomeTeam: data.isHomeTeam.present
           ? data.isHomeTeam.value
           : this.isHomeTeam,
+      shotX: data.shotX.present ? data.shotX.value : this.shotX,
+      shotY: data.shotY.present ? data.shotY.value : this.shotY,
     );
   }
 
@@ -3006,7 +3072,9 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
           ..write('playerId: $playerId, ')
           ..write('position: $position, ')
           ..write('isSpecialScoring: $isSpecialScoring, ')
-          ..write('isHomeTeam: $isHomeTeam')
+          ..write('isHomeTeam: $isHomeTeam, ')
+          ..write('shotX: $shotX, ')
+          ..write('shotY: $shotY')
           ..write(')'))
         .toString();
   }
@@ -3023,6 +3091,8 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
     position,
     isSpecialScoring,
     isHomeTeam,
+    shotX,
+    shotY,
   );
   @override
   bool operator ==(Object other) =>
@@ -3037,7 +3107,9 @@ class MatchEvent extends DataClass implements Insertable<MatchEvent> {
           other.playerId == this.playerId &&
           other.position == this.position &&
           other.isSpecialScoring == this.isSpecialScoring &&
-          other.isHomeTeam == this.isHomeTeam);
+          other.isHomeTeam == this.isHomeTeam &&
+          other.shotX == this.shotX &&
+          other.shotY == this.shotY);
 }
 
 class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
@@ -3051,6 +3123,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
   final Value<String?> position;
   final Value<bool> isSpecialScoring;
   final Value<bool> isHomeTeam;
+  final Value<double?> shotX;
+  final Value<double?> shotY;
   const MatchEventsCompanion({
     this.id = const Value.absent(),
     this.gameId = const Value.absent(),
@@ -3062,6 +3136,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
     this.position = const Value.absent(),
     this.isSpecialScoring = const Value.absent(),
     this.isHomeTeam = const Value.absent(),
+    this.shotX = const Value.absent(),
+    this.shotY = const Value.absent(),
   });
   MatchEventsCompanion.insert({
     this.id = const Value.absent(),
@@ -3074,6 +3150,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
     this.position = const Value.absent(),
     this.isSpecialScoring = const Value.absent(),
     this.isHomeTeam = const Value.absent(),
+    this.shotX = const Value.absent(),
+    this.shotY = const Value.absent(),
   }) : gameId = Value(gameId),
        quarter = Value(quarter),
        matchTimeSeconds = Value(matchTimeSeconds),
@@ -3090,6 +3168,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
     Expression<String>? position,
     Expression<bool>? isSpecialScoring,
     Expression<bool>? isHomeTeam,
+    Expression<double>? shotX,
+    Expression<double>? shotY,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3102,6 +3182,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
       if (position != null) 'position': position,
       if (isSpecialScoring != null) 'is_special_scoring': isSpecialScoring,
       if (isHomeTeam != null) 'is_home_team': isHomeTeam,
+      if (shotX != null) 'shot_x': shotX,
+      if (shotY != null) 'shot_y': shotY,
     });
   }
 
@@ -3116,6 +3198,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
     Value<String?>? position,
     Value<bool>? isSpecialScoring,
     Value<bool>? isHomeTeam,
+    Value<double?>? shotX,
+    Value<double?>? shotY,
   }) {
     return MatchEventsCompanion(
       id: id ?? this.id,
@@ -3128,6 +3212,8 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
       position: position ?? this.position,
       isSpecialScoring: isSpecialScoring ?? this.isSpecialScoring,
       isHomeTeam: isHomeTeam ?? this.isHomeTeam,
+      shotX: shotX ?? this.shotX,
+      shotY: shotY ?? this.shotY,
     );
   }
 
@@ -3164,6 +3250,12 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
     if (isHomeTeam.present) {
       map['is_home_team'] = Variable<bool>(isHomeTeam.value);
     }
+    if (shotX.present) {
+      map['shot_x'] = Variable<double>(shotX.value);
+    }
+    if (shotY.present) {
+      map['shot_y'] = Variable<double>(shotY.value);
+    }
     return map;
   }
 
@@ -3179,7 +3271,9 @@ class MatchEventsCompanion extends UpdateCompanion<MatchEvent> {
           ..write('playerId: $playerId, ')
           ..write('position: $position, ')
           ..write('isSpecialScoring: $isSpecialScoring, ')
-          ..write('isHomeTeam: $isHomeTeam')
+          ..write('isHomeTeam: $isHomeTeam, ')
+          ..write('shotX: $shotX, ')
+          ..write('shotY: $shotY')
           ..write(')'))
         .toString();
   }
@@ -5941,6 +6035,8 @@ typedef $$MatchEventsTableCreateCompanionBuilder =
       Value<String?> position,
       Value<bool> isSpecialScoring,
       Value<bool> isHomeTeam,
+      Value<double?> shotX,
+      Value<double?> shotY,
     });
 typedef $$MatchEventsTableUpdateCompanionBuilder =
     MatchEventsCompanion Function({
@@ -5954,6 +6050,8 @@ typedef $$MatchEventsTableUpdateCompanionBuilder =
       Value<String?> position,
       Value<bool> isSpecialScoring,
       Value<bool> isHomeTeam,
+      Value<double?> shotX,
+      Value<double?> shotY,
     });
 
 final class $$MatchEventsTableReferences
@@ -6044,6 +6142,16 @@ class $$MatchEventsTableFilterComposer
 
   ColumnFilters<bool> get isHomeTeam => $composableBuilder(
     column: $table.isHomeTeam,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get shotX => $composableBuilder(
+    column: $table.shotX,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get shotY => $composableBuilder(
+    column: $table.shotY,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6143,6 +6251,16 @@ class $$MatchEventsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get shotX => $composableBuilder(
+    column: $table.shotX,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get shotY => $composableBuilder(
+    column: $table.shotY,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$GamesTableOrderingComposer get gameId {
     final $$GamesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -6229,6 +6347,12 @@ class $$MatchEventsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get shotX =>
+      $composableBuilder(column: $table.shotX, builder: (column) => column);
+
+  GeneratedColumn<double> get shotY =>
+      $composableBuilder(column: $table.shotY, builder: (column) => column);
+
   $$GamesTableAnnotationComposer get gameId {
     final $$GamesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -6314,6 +6438,8 @@ class $$MatchEventsTableTableManager
                 Value<String?> position = const Value.absent(),
                 Value<bool> isSpecialScoring = const Value.absent(),
                 Value<bool> isHomeTeam = const Value.absent(),
+                Value<double?> shotX = const Value.absent(),
+                Value<double?> shotY = const Value.absent(),
               }) => MatchEventsCompanion(
                 id: id,
                 gameId: gameId,
@@ -6325,6 +6451,8 @@ class $$MatchEventsTableTableManager
                 position: position,
                 isSpecialScoring: isSpecialScoring,
                 isHomeTeam: isHomeTeam,
+                shotX: shotX,
+                shotY: shotY,
               ),
           createCompanionCallback:
               ({
@@ -6338,6 +6466,8 @@ class $$MatchEventsTableTableManager
                 Value<String?> position = const Value.absent(),
                 Value<bool> isSpecialScoring = const Value.absent(),
                 Value<bool> isHomeTeam = const Value.absent(),
+                Value<double?> shotX = const Value.absent(),
+                Value<double?> shotY = const Value.absent(),
               }) => MatchEventsCompanion.insert(
                 id: id,
                 gameId: gameId,
@@ -6349,6 +6479,8 @@ class $$MatchEventsTableTableManager
                 position: position,
                 isSpecialScoring: isSpecialScoring,
                 isHomeTeam: isHomeTeam,
+                shotX: shotX,
+                shotY: shotY,
               ),
           withReferenceMapper: (p0) => p0
               .map(

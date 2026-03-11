@@ -43,7 +43,7 @@ void main() {
               _getStatLabel(stat).toUpperCase(),
               findRichText: true,
             )
-            .last; // Use .last in case of multiple matches (though unlikely here)
+            .last; // Use .last
 
         expect(
           finder,

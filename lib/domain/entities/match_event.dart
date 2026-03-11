@@ -37,6 +37,8 @@ class MatchEvent extends Equatable {
     this.position,
     this.isSpecialScoring = false,
     this.isHomeTeam = true,
+    this.shotX,
+    this.shotY,
   });
   final int? id;
   final int gameId;
@@ -48,6 +50,8 @@ class MatchEvent extends Equatable {
   final String? position; // e.g. "GS", "A1"
   final bool isSpecialScoring;
   final bool isHomeTeam;
+  final double? shotX;
+  final double? shotY;
 
   @override
   List<Object?> get props => [
@@ -61,6 +65,8 @@ class MatchEvent extends Equatable {
     position,
     isSpecialScoring,
     isHomeTeam,
+    shotX,
+    shotY,
   ];
 
   MatchEvent copyWith({
@@ -74,6 +80,8 @@ class MatchEvent extends Equatable {
     String? position,
     bool? isSpecialScoring,
     bool? isHomeTeam,
+    double? shotX,
+    double? shotY,
   }) {
     return MatchEvent(
       id: id ?? this.id,
@@ -86,6 +94,8 @@ class MatchEvent extends Equatable {
       position: position ?? this.position,
       isSpecialScoring: isSpecialScoring ?? this.isSpecialScoring,
       isHomeTeam: isHomeTeam ?? this.isHomeTeam,
+      shotX: shotX ?? this.shotX,
+      shotY: shotY ?? this.shotY,
     );
   }
 }

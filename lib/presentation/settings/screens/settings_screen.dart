@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:netstats_pro/core/design_system/design_overlay_settings.dart';
 import 'package:netstats_pro/data/services/demo_data_service.dart';
 import 'package:netstats_pro/injection_container.dart';
 import 'package:netstats_pro/presentation/widgets/premium_app_bar.dart';
@@ -26,6 +27,8 @@ class SettingsScreen extends StatelessWidget {
               onTap: () => context.go('/settings/style-guide'),
             ),
           ),
+          const SizedBox(height: 16),
+          const _DesignHelpersSection(),
           const SizedBox(height: 16),
           Card(
             color: Theme.of(context).colorScheme.errorContainer,
@@ -99,6 +102,58 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DesignHelpersSection extends StatelessWidget {
+  const _DesignHelpersSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = sl<DesignOverlaySettings>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 8),
+          child: Text(
+            'DESIGN HELPERS',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        Card(
+          child: ListenableBuilder(
+            listenable: settings,
+            builder: (context, _) {
+              return Column(
+                children: [
+                  SwitchListTile(
+                    secondary: const Icon(Icons.ads_click),
+                    title: const Text('Thumb Zone Overlay'),
+                    subtitle: const Text('Visualize ergonomic reachability'),
+                    value: settings.showThumbZone,
+                    onChanged: (value) => settings.showThumbZone = value,
+                  ),
+                  const Divider(height: 1, indent: 56),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.gesture),
+                    title: const Text('Z-Pattern Overlay'),
+                    subtitle: const Text('Visualize visual scanning path'),
+                    value: settings.showZPattern,
+                    onChanged: (value) => settings.showZPattern = value,
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:netstats_pro/core/design_system/design_system.dart';
 import 'package:netstats_pro/domain/entities/game.dart';
-import 'package:netstats_pro/domain/entities/match_event.dart';
 import 'package:netstats_pro/presentation/games/bloc/live_match_bloc.dart';
 import 'package:netstats_pro/presentation/games/bloc/live_match_event.dart';
 import 'package:netstats_pro/presentation/games/bloc/live_match_state.dart';
 import 'package:netstats_pro/presentation/games/widgets/duration_stepper.dart';
+import 'package:netstats_pro/presentation/games/widgets/match_event_feed.dart';
 import 'package:netstats_pro/presentation/games/widgets/premium_scoreboard.dart';
 import 'package:netstats_pro/presentation/games/widgets/score_only_grid.dart';
+import 'package:netstats_pro/presentation/games/widgets/shot_map_scoring.dart';
 import 'package:netstats_pro/presentation/widgets/premium_app_bar.dart';
 
 class LiveMatchScreen extends StatelessWidget {
@@ -34,6 +36,8 @@ class _LiveMatchView extends StatefulWidget {
 class _LiveMatchScreenState extends State<_LiveMatchView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pulseController;
+  bool _showShotMap = false;
+  bool _activeRecordingHome = true;
 
   @override
   void initState() {
@@ -53,46 +57,74 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LiveMatchBloc, LiveMatchState>(
-      builder: (context, state) {
-        if (state.game == null) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+    return BlocListener<LiveMatchBloc, LiveMatchState>(
+      listenWhen: (previous, current) =>
+          previous.homeHasPossession != current.homeHasPossession,
+      listener: (context, state) {
+        if (_showShotMap) {
+          setState(() {
+            _activeRecordingHome = state.homeHasPossession;
+          });
         }
-
-        final isScoreOnly = state.game?.trackingMode == TrackingMode.scoreOnly;
-
-        if (isScoreOnly) {
-          return _buildScoreOnlyLayout(context, state);
-        }
-
-        // Standard/Ergonomic Layouts
-        return Scaffold(
-          appBar: PremiumAppBar(
-            title: '${state.game!.opponentName} Match',
-            leading: IconButton(
-              icon: const Icon(Icons.close_rounded),
-              onPressed: () => context.go('/games'),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.undo),
-                onPressed: () => context.read<LiveMatchBloc>().add(UndoEvent()),
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {},
-              ),
-            ],
-            bottom: _buildMatchClockBar(state),
-          ),
-          body: state.isErgonomicLayout
-              ? _buildErgonomicLayout(context, state)
-              : _buildStandardLayout(context, state),
-          bottomNavigationBar: _buildMatchControls(context, state),
-        );
       },
+      child: BlocBuilder<LiveMatchBloc, LiveMatchState>(
+        builder: (context, state) {
+          if (state.game == null) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          final isScoreOnly =
+              state.game?.trackingMode == TrackingMode.scoreOnly;
+
+          if (isScoreOnly) {
+            return _buildScoreOnlyLayout(context, state);
+          }
+
+          return Scaffold(
+            appBar: PremiumAppBar(
+              title: '${state.game!.opponentName} Match',
+              leading: IconButton(
+                icon: const Icon(Icons.close_rounded),
+                onPressed: () => context.go('/games'),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    _showShotMap
+                        ? Icons.grid_view_rounded
+                        : Icons.sports_basketball_rounded,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showShotMap = !_showShotMap;
+                      if (_showShotMap) {
+                        _activeRecordingHome = state.homeHasPossession;
+                      }
+                    });
+                  },
+                  tooltip: _showShotMap ? 'Show Stats Grid' : 'Show Shot Map',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.undo),
+                  onPressed: () =>
+                      context.read<LiveMatchBloc>().add(UndoEvent()),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {},
+                ),
+              ],
+              bottom: _buildMatchClockBar(state),
+            ),
+            body: state.isErgonomicLayout
+                ? _buildErgonomicLayout(context, state)
+                : _buildStandardLayout(context, state),
+            bottomNavigationBar: _buildMatchControls(context, state),
+          );
+        },
+      ),
     );
   }
 
@@ -101,6 +133,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
   }
 
   Widget _buildStandardLayout(BuildContext context, LiveMatchState state) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
         PremiumScoreboard(
@@ -124,6 +157,8 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
           isSuperShotEnabled: state.game?.isSuperShot ?? false,
           homeColor: state.homeTeamColor,
           awayColor: state.opponentTeamColor,
+          isRecordingMode: _showShotMap,
+          activeRecordingHome: _activeRecordingHome,
           onTimerTap: () {
             if (state.remainingTime == Duration.zero) {
               _showNextQuarterDialog(context, state);
@@ -133,16 +168,70 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
           },
           onPossessionTap: () =>
               context.read<LiveMatchBloc>().add(TogglePossession()),
-          onHomePowerPlayToggle: () => context.read<LiveMatchBloc>().add(
-            const ToggleTeamPowerPlay(isHomeTeam: true),
-          ),
           onAwayPowerPlayToggle: () => context.read<LiveMatchBloc>().add(
             const ToggleTeamPowerPlay(isHomeTeam: false),
           ),
         ),
-        _buildHorizontalEventTicker(state),
-        const Spacer(),
-        // Standard layout content would go here
+        if (_showShotMap)
+          Expanded(
+            child: ShotMapScoring(
+              format: state.game?.format ?? GameFormat.sevenAside,
+              isHomeTeam: state.homeHasPossession,
+              events: state.events,
+              initialHomeFocus: _activeRecordingHome,
+              onActiveTeamChanged: (isHome) {
+                setState(() => _activeRecordingHome = isHome);
+              },
+              isSuperShotActive: state.isSpecialScoringActive,
+              isSuperShotEnabled: state.game?.isSuperShot ?? false,
+              isPowerPlayActive:
+                  state.isHomePowerPlayActive || state.isAwayPowerPlayActive,
+              homeTeamColor: state.homeTeamColor,
+              awayTeamColor: state.opponentTeamColor,
+              onShotRecorded:
+                  ({
+                    required isHomeTeam,
+                    required position,
+                    required type,
+                    shotX,
+                    shotY,
+                  }) {
+                    context.read<LiveMatchBloc>().add(
+                      LogEvent(
+                        type: type,
+                        isHomeTeam: isHomeTeam,
+                        position: position,
+                        shotX: shotX,
+                        shotY: shotY,
+                      ),
+                    );
+                  },
+            ),
+          )
+        else
+          Expanded(
+            child: ScoreOnlyGrid(
+              game: state.game!,
+              homeColor: state.homeTeamColor ?? AppColors.primary,
+              awayColor: state.opponentTeamColor ?? AppColors.slate600,
+              isSpecialScoringActive: state.isSpecialScoringActive,
+              isHomePowerPlayActive: state.isHomePowerPlayActive,
+              isAwayPowerPlayActive: state.isAwayPowerPlayActive,
+              onStatSelected: (type, {required isHome}) {
+                context.read<LiveMatchBloc>().add(
+                  LogEvent(type: type, isHomeTeam: isHome),
+                );
+              },
+            ),
+          ),
+        MatchEventFeed(
+          events: state.events,
+          homeTeamColor: state.homeTeamColor ?? cs.primary,
+          opponentTeamColor: state.opponentTeamColor ?? cs.secondary,
+          onUndoLast: () {
+            context.read<LiveMatchBloc>().add(UndoEvent());
+          },
+        ),
       ],
     );
   }
@@ -157,6 +246,22 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
           onPressed: () => context.go('/games'),
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              _showShotMap
+                  ? Icons.grid_view_rounded
+                  : Icons.sports_basketball_rounded,
+            ),
+            onPressed: () {
+              setState(() {
+                _showShotMap = !_showShotMap;
+                if (_showShotMap) {
+                  _activeRecordingHome = state.homeHasPossession;
+                }
+              });
+            },
+            tooltip: _showShotMap ? 'Show Stats Grid' : 'Show Shot Map',
+          ),
           IconButton(
             icon: const Icon(Icons.undo),
             onPressed: () => context.read<LiveMatchBloc>().add(UndoEvent()),
@@ -191,6 +296,8 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
             isSuperShotEnabled: state.game?.isSuperShot ?? false,
             homeColor: state.homeTeamColor,
             awayColor: state.opponentTeamColor,
+            isRecordingMode: _showShotMap,
+            activeRecordingHome: _activeRecordingHome,
             onTimerTap: () {
               if (state.remainingTime == Duration.zero) {
                 _showNextQuarterDialog(context, state);
@@ -207,23 +314,72 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
               const ToggleTeamPowerPlay(isHomeTeam: false),
             ),
           ),
-          Expanded(
-            child: ScoreOnlyGrid(
-              game: state.game!,
-              isSpecialScoringActive: state.isSpecialScoringActive,
-              isHomePowerPlayActive: state.isHomePowerPlayActive,
-              isAwayPowerPlayActive: state.isAwayPowerPlayActive,
-              homeColor: state.homeTeamColor ?? cs.primary,
-              awayColor: state.opponentTeamColor ?? cs.onSurface,
-              onStatSelected: (type, {required isHome}) {
-                context.read<LiveMatchBloc>().add(
-                  LogEvent(
-                    type: type,
-                    isHomeTeam: isHome,
-                  ),
-                );
-              },
+          if (_showShotMap)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.px12,
+                ),
+                child: ShotMapScoring(
+                  format: state.game?.format ?? GameFormat.sevenAside,
+                  isHomeTeam: state.homeHasPossession,
+                  events: state.events,
+                  isSuperShotActive: state.isSpecialScoringActive,
+                  isSuperShotEnabled: state.game?.isSuperShot ?? false,
+                  isPowerPlayActive:
+                      state.isHomePowerPlayActive ||
+                      state.isAwayPowerPlayActive,
+                  homeTeamColor: state.homeTeamColor,
+                  awayTeamColor: state.opponentTeamColor,
+                  initialHomeFocus: _activeRecordingHome,
+                  onActiveTeamChanged: (isHome) {
+                    setState(() => _activeRecordingHome = isHome);
+                  },
+                  onShotRecorded:
+                      ({
+                        required isHomeTeam,
+                        required position,
+                        required type,
+                        shotX,
+                        shotY,
+                      }) {
+                        context.read<LiveMatchBloc>().add(
+                          LogEvent(
+                            type: type,
+                            isHomeTeam: isHomeTeam,
+                            position: position,
+                            shotX: shotX,
+                            shotY: shotY,
+                          ),
+                        );
+                      },
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: ScoreOnlyGrid(
+                game: state.game!,
+                isSpecialScoringActive: state.isSpecialScoringActive,
+                isHomePowerPlayActive: state.isHomePowerPlayActive,
+                isAwayPowerPlayActive: state.isAwayPowerPlayActive,
+                homeColor: state.homeTeamColor ?? cs.primary,
+                awayColor: state.opponentTeamColor ?? cs.onSurface,
+                onStatSelected: (type, {required isHome}) {
+                  context.read<LiveMatchBloc>().add(
+                    LogEvent(type: type, isHomeTeam: isHome),
+                  );
+                },
+              ),
             ),
+          MatchEventFeed(
+            events: state.events,
+            homeTeamColor: state.homeTeamColor ?? cs.primary,
+            opponentTeamColor: state.opponentTeamColor ?? cs.secondary,
+            onUndoLast: () {
+              context.read<LiveMatchBloc>().add(UndoEvent());
+            },
           ),
         ],
       ),
@@ -246,22 +402,16 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
       color: cs.surfaceContainerLow,
       child: Row(
         children: [
-          // Reset Button
           _buildControlButton(
-            icon: Icons.refresh_rounded,
-            label: 'RESET',
-            onTap: () => _showActionConfirmation(
-              context,
-              title: 'RESET TIMER?',
-              message: 'This will reset the clock to the start of the quarter.',
-              confirmLabel: 'RESET',
-              isDanger: true,
-              onConfirm: () => bloc.add(ResetTimer()),
-            ),
+            icon: Icons.flip_rounded,
+            label: 'SWITCH',
+            onTap: () {
+              setState(() => _activeRecordingHome = !_activeRecordingHome);
+              unawaited(HapticFeedback.lightImpact());
+            },
             color: cs.onSurfaceVariant,
           ),
           const Spacer(),
-          // Play/Pause Button
           SizedBox(
             height: 56,
             width: 160,
@@ -310,7 +460,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
                     ),
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                       borderRadius: AppRadius.brLg,
                     ),
                     elevation: isFinished ? 4 : 0,
@@ -331,7 +481,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
             ),
           ),
           const Spacer(),
-          // More Options Button
           _buildControlButton(
             icon: Icons.more_horiz_rounded,
             label: 'MORE',
@@ -366,6 +515,22 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                 onTap: () {
                   Navigator.pop(context);
                   _showMatchDetails(context, state);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.refresh_rounded),
+                title: const Text('Reset Quarter'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showActionConfirmation(
+                    context,
+                    title: 'RESET TIMER?',
+                    message:
+                        'This will reset the clock to the start of the quarter.',
+                    confirmLabel: 'RESET',
+                    isDanger: true,
+                    onConfirm: () => bloc.add(ResetTimer()),
+                  );
                 },
               ),
               ListTile(
@@ -453,7 +618,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                           '${game.scheduledAt.day} '
                                   '${_getMonth(game.scheduledAt)} - '
                                   '${game.scheduledAt.hour}:'
-                                  '${game.scheduledAt.minute.toString().padLeft(2, '0')}'
+                                  '${game.scheduledAt.minute.toString().padLeft(2, "0")}'
                               .toUpperCase(),
                     ),
                     const Divider(height: 1),
@@ -562,7 +727,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
         if (state.remainingTime == Duration.zero && isLastQuarter)
           TextButton.icon(
             onPressed: () {
-              Navigator.of(context).pop(); // Close confirmation
+              Navigator.of(context).pop();
               _showExtraQuarterDurationPicker(context, state);
             },
             icon: const Icon(Icons.add_circle_outline_rounded),
@@ -576,7 +741,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
     BuildContext context,
     LiveMatchState state,
   ) {
-    int selectedMinutes = 5; // Default overtime
+    var selectedMinutes = 5;
     final bloc = context.read<LiveMatchBloc>();
 
     unawaited(
@@ -633,7 +798,7 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                         Navigator.of(context).pop();
                       },
                       style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(
+                        shape: const RoundedRectangleBorder(
                           borderRadius: AppRadius.brLg,
                         ),
                       ),
@@ -734,11 +899,16 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
     final isSpecialScoringApplicable =
         (isFiveAside && !isNominatedMode) || (state.game?.isSuperShot == true);
 
-    final progress = (remainingSeconds / totalSeconds).clamp(0.0, 1.0);
-    final markerPosition = (thresholdSeconds / totalSeconds).clamp(0.0, 1.0);
+    final progress = (remainingSeconds / (totalSeconds == 0 ? 1 : totalSeconds))
+        .clamp(0.0, 1.0);
+    final markerPosition =
+        (thresholdSeconds / (totalSeconds == 0 ? 1 : totalSeconds)).clamp(
+          0.0,
+          1.0,
+        );
 
     late String label;
-    bool shouldPulse = false;
+    var shouldPulse = false;
 
     if (isActive) {
       if (isNominatedMode) {
@@ -746,7 +916,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
         final isAway = state.isAwayPowerPlayActive;
 
         if (isHome && isAway) {
-          // Fallback for safety, though setup prevents this
           label = 'DUAL POWER PLAY ACTIVE';
         } else if (isHome) {
           final name = state.game?.homeTeamName.toUpperCase() ?? 'TEAM';
@@ -764,7 +933,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
         shouldPulse = true;
       }
     } else {
-      // Standard Countdown (or Gap Countdown)
       if (isSpecialScoringApplicable && remainingSeconds > thresholdSeconds) {
         final gapSeconds = remainingSeconds - thresholdSeconds;
         final gapMins = gapSeconds ~/ 60;
@@ -772,25 +940,21 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
         final modeName = isFiveAside ? 'POWER PLAY' : 'SUPER SHOT';
         label = '$gapMins:${gapSecs.toString().padLeft(2, '0')} TO $modeName';
 
-        // Pulse 5 seconds BEFORE activation
         if (gapSeconds <= 5 && state.isTimerRunning) {
           shouldPulse = true;
         }
       } else {
-        // Standard Mode or past threshold
         label = 'QUARTER ${state.currentQuarter}';
       }
     }
 
-    // ALWAYS pulse in the final 5 seconds of the quarter
     if (remainingSeconds <= 5 && remainingSeconds > 0 && state.isTimerRunning) {
       shouldPulse = true;
     }
 
-    // Animation control
     if (shouldPulse && state.isTimerRunning && remainingSeconds > 0) {
       if (!_pulseController.isAnimating) {
-        _pulseController.repeat(reverse: true);
+        unawaited(_pulseController.repeat(reverse: true));
       }
     } else {
       if (_pulseController.isAnimating) {
@@ -817,7 +981,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
             ),
             child: Stack(
               children: [
-                // Progress Bar
                 Align(
                   alignment: Alignment.centerLeft,
                   child: FractionallySizedBox(
@@ -845,8 +1008,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                     ),
                   ),
                 ),
-
-                // Pulse overlay (White wash for final countdown)
                 if (shouldPulse)
                   Positioned.fill(
                     child: Opacity(
@@ -854,8 +1015,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                       child: Container(color: Colors.white),
                     ),
                   ),
-
-                // Special Scoring Marker (Notch)
                 if (!isActive &&
                     !isNominatedMode &&
                     isSpecialScoringApplicable &&
@@ -877,8 +1036,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                       ),
                     ),
                   ),
-
-                // Label overlay
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -914,130 +1071,6 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildHorizontalEventTicker(LiveMatchState state) {
-    final recentEvents = state.events.reversed.take(15).toList();
-    if (recentEvents.isEmpty) {
-      return const SizedBox(height: 56);
-    }
-
-    return Container(
-      height: 64,
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        itemCount: recentEvents.length,
-        separatorBuilder: (_, __) => AppSpacing.hGap8,
-        itemBuilder: (context, index) {
-          final event = recentEvents[index];
-          final teamColor = event.isHomeTeam
-              ? (state.homeTeamColor ?? Theme.of(context).colorScheme.primary)
-              : (state.opponentTeamColor ??
-                    Theme.of(context).colorScheme.secondary);
-
-          // Resolve player info
-          String displayName = 'TEAM';
-          String? posLabel;
-
-          if (event.playerId != null) {
-            displayName = 'PLAYER';
-          } else if (event.position != null) {
-            posLabel = event.position!.toUpperCase();
-          }
-
-          return _buildTickerItem(
-            context,
-            event: event,
-            teamColor: teamColor,
-            displayName: displayName,
-            posLabel: posLabel,
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTickerItem(
-    BuildContext context, {
-    required MatchEvent event,
-    required Color teamColor,
-    required String displayName,
-    String? posLabel,
-  }) {
-    final cs = Theme.of(context).colorScheme;
-    final isError =
-        event.type == MatchEventType.miss ||
-        event.type == MatchEventType.turnover ||
-        event.type.name.contains('penalty');
-
-    final color = isError ? cs.error : teamColor;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.px10,
-        vertical: AppSpacing.px6,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: AppRadius.brLg,
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (posLabel != null) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.px4,
-                vertical: 1,
-              ),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.8),
-                borderRadius: AppRadius.brSm,
-              ),
-              child: Text(
-                posLabel,
-                style: AppTypography.labelSmall.copyWith(
-                  color: cs.onPrimary,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-            AppSpacing.hGap8,
-          ],
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                displayName.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
-              ),
-              Text(
-                event.type.name.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-          AppSpacing.hGap8,
-          Text(
-            event.matchTime.formatted,
-            style: AppTypography.labelSmall.copyWith(
-              color: cs.outline,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1105,7 +1138,9 @@ class _LiveMatchScreenState extends State<_LiveMatchView>
                 foregroundColor: isDanger
                     ? Theme.of(context).colorScheme.onError
                     : Theme.of(context).colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.brMd),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.brMd,
+                ),
               ),
               child: Text(
                 confirmLabel.toUpperCase(),
